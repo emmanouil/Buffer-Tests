@@ -3,16 +3,12 @@ var path = require("path"),
     fs = require("fs");
 
 //exports
-exports.write = write;
 exports.append = append;
 exports.read = read;
 exports.readJSON = readJSON;
+exports.write = write;
+exports.writeJSON = writeJSON;
 
-
-
-function write(filename, data) {
-    fs.writeFileSync(filename, data, { encoding: null, flags: 'w' });
-}
 
 function append(filename, data) {
     fs.appendFileSync(filename, data, { encoding: null, flags: 'a' });
@@ -29,4 +25,12 @@ function read(filename){
 
 function readJSON(filename){
     return JSON.parse(read(filename));
+}
+
+function write(filename, data) {
+    fs.writeFileSync(filename, data, { encoding: null, flags: 'w' });
+}
+
+function writeJSON(filename, data) {
+    fs.writeFileSync(filename, JSON.stringify(data), { encoding: null, flags: 'w' });
 }
