@@ -3,12 +3,12 @@ var tl = require("./tools.js");
 
 //file-out setup
 const NODE_OUT_PATH = 'x64/Debug/node_out/';
+const VIDEO_IN_FILE = 'video_out.vid'
+const META_IN_FILE = 'meta_out_norm.mtd'
 var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
 //file-in setup
-var ex = fs.existsSync('x64/Debug/out/playlist.m3u8');
-var pl_list = fs.readFileSync('x64/Debug/out/playlist.m3u8', 'utf8').split(/\r\n|\r|\n/);
 var coord_files = [], coord_n, sets = [];   //vars used for playlist parsing
 
 //constants
@@ -31,8 +31,8 @@ var proj = [], dela = [], dela_ordered = [], video_ordered = [];
 
 //Actual execution entry point
 
-parse_playlist();   //results in proj[] and dela[]
-
+dela = proj = tl.readJSON(META_IN_FILE);
+video_ordered = tl.readJSON(VIDEO_IN_FILE);
 //bubble sort to delayed coords
 dela_ordered = dela.slice(0);
 bubbleSortArray(dela_ordered, 4); //sort according to FRN
