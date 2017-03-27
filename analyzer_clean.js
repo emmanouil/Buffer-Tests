@@ -61,15 +61,14 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
         for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
             var elem = dela_ordered[i_a];
             var item = {};
-            item.T_arrival = elem[1][1];
-            item.T_display = elem[28][1];
-            item.T = item.T_display;    //TODO remove this and update it on video frames
-            item.FRN = elem[4][1];
+            item.T_arrival = elem.T_arrival;
+            item.T_display = elem.T_display;
+            item.FRN = elem.FRN;
             item.contents = -1; //empty
             item.inBuffer = false;
             if (i_a < dela_ordered.length - 1) {
-                item.TnextDiff = parseInt(dela_ordered[i_a + 1][28][1] - item.T_display);
-                item.FRNnext = parseInt(dela_ordered[i_a + 1][4][1]);
+                item.TnextDiff = parseInt(dela_ordered[i_a + 1].T_display - item.T_display);
+                item.FRNnext = parseInt(dela_ordered[i_a + 1].FRN); //in case we have missing frames (i.e. non-consecutive FRNs)
             } else {
                 item.TnextDiff = -1;
                 item.FRNnext = -1;
@@ -85,7 +84,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
 
         tl.write(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
 
-        T_zero = video_ordered[0].T;    //first vframe timestamp
+        T_zero = video_ordered[0].T_display;    //first vframe timestamp
         T_start = 0;    //timestamp of vframe when video starts playback
         T_end = T_zero + TEST_DURATION;
         var Vbuff = [];
@@ -102,15 +101,15 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
 
         for (var v_i = 0; v_i < video_ordered.length; v_i++) {   //iterate vframes
 
-            if (TEST_DURATION < (current_vframe.T -video_ordered[0].T)) {     //check if exceeded test duration
+            if (TEST_DURATION < (current_vframe.T_display -video_ordered[0].T_display)) {     //check if exceeded test duration
                 break;
             }
             //first do the vframes
             current_vframe = video_ordered[v_i];    //select current vframe
             Vbuff.push(video_ordered[v_i]);     //push current vframe in Vbuffer
             if (current_vbuff_status == 'NEW') {
-                if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T - Vbuff[0].T)) {   //check if we are on playback levels
-                    T_start = Vbuff[Vbuff.length - 1].T;
+                if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
+                    T_start = Vbuff[Vbuff.length - 1].T_display;
                     Vbuff.shift();
                     current_vbuff_status = 'PLAYING';
                     console.log("VIDEO PLAYING")
@@ -132,7 +131,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
 
             //then the metaframes
             current_mframe = dela_Tarr_ordered[m_index];    //select current mframe
-            while (current_mframe.T_arrival <= current_vframe.T) {    //push current mframe in MBuffer
+            while (current_mframe.T_arrival <= current_vframe.T_display) {    //push current mframe in MBuffer
                 Mbuff.push(current_mframe);
                 m_index++;
                 current_mframe = dela_Tarr_ordered[m_index];
@@ -165,7 +164,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
 
             if (current_mbuff_status == 'NEW') {
                 if (mbuff_thres <= Mbuff_size) {   //check if we are on playback levels
-                    if (Mbuff[0].T_display < Vbuff[0].T) {
+                    if (Mbuff[0].T_display < Vbuff[0].T_display) {
                         Mbuff.shift();
                         Mbuff_changed = true;
                     }
@@ -177,7 +176,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
                     current_mbuff_status = 'BUFFERING';
                     console.log("META BUFFERING")
                 } else {
-                    if (Mbuff[0].T_display < Vbuff[0].T) {
+                    if (Mbuff[0].T_display < Vbuff[0].T_display) {
                         Mbuff.shift();
                         Mbuff_changed = true;
                     }
@@ -189,7 +188,8 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
                 }
             }
 
-            tl.append(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', '\n' + (current_vframe.T - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T - Vbuff[0].T) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
+            tl.append(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
+             '\n' + (current_vframe.T_display - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
 
         }
 
@@ -204,9 +204,9 @@ console.log('ALL tests done');
 
 /*-- helper analysis functions --*/
 function check_delays() {
-    minObservedDelay = maxObservedDelay = first_dela_frame[26][1];
+    minObservedDelay = maxObservedDelay = first_dela_frame.Delay;
     for (var i = 0; i < dela_ordered.length; i++) {
-        var local_delay = dela_ordered[i][26][1];
+        var local_delay = dela_ordered[i].Delay;
         if (minObservedDelay > local_delay) {
             minObservedDelay = local_delay;
         }
