@@ -10,15 +10,20 @@ const STREAMS_FINAL_TIMESTAMP = STREAMS_INIT_TIMESTAMP + STREAMS_DURATION;
 
 /*--- video ---*/
 const V_FILENAME = 'video_out.vid'
-const V_FRAMERATE = 1 / 30;
+const V_FREQ = 30;
+const V_FRAMERATE = 1 / V_FREQ;
+const V_DELAY_DISTR = 'NONE';
 const V_STREAM_ID = 'VID';
 /*--- metadata ---*/
 const M_FILENAME = 'meta_out.mtd'
-const M_FRAMERATE = 1 / 30;
+const M_FREQ = 30;
+const M_FRAMERATE = 1 / M_FREQ;
+const M_DELAY_DISTR = 'NORMAL';
 const M_DELAY_MIN = 100;    //(in ms)
 const M_DELAY_MAX = 2000;    //(in ms)
+const M_DELAY_MEAN = (M_DELAY_MAX + M_DELAY_MIN ) / 2;  //used for NORMAL DISTR (mu)
+const M_DELAY_SD = (M_DELAY_MAX + M_DELAY_MIN ) / 7;  //used for NORMAL DISTR (sigma)
 const M_STREAM_ID = 'META';
-//const M_DELAY_DISTRIBUTION = 'UNIFORM';
 
 //other consts (using in functions)
 const EPSILON = Number.EPSILON;
@@ -27,8 +32,8 @@ const TWO_PI = 2*PI;
 
 
 //Entry point
-var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, 'NONE');
-var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, 'UNIFORM');
+var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
+var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
 tl.writeJSON(V_FILENAME, video_out);
 tl.writeJSON(M_FILENAME, meta_out);
 console.log('done')
@@ -45,23 +50,33 @@ function generate_frames(s_id, framerate = (1/30), d_type = 'NONE') {
     frames_out.TYPE = s_id;
     framerate = framerate*1000;
 
-    var frn_t = 0, t_a = 0, t_d = 0, dt = 0;
+    var frn_t = 0, t_a = 0, t_d = 0, dt = 0, ct = 0;;
 
     for (var i = STREAMS_INIT_TIMESTAMP; i < STREAMS_FINAL_TIMESTAMP; i += framerate) {
         if(d_type == 'NONE'){
             t_a = t_d = i;
         }else if(d_type == 'UNIFORM'){
-            //TODO add distributions
             dt = getRandomIntInclusiveUniform(M_DELAY_MIN, M_DELAY_MAX);
             t_d = i;
             t_a = t_d + dt;
-        }else{
+        } else if (d_type == 'NORMAL') {
+            dt =0;
+            do{
+                if(dt!=0)ct++;
+                dt = getRandomIntInclusiveNormal(M_DELAY_MEAN, M_DELAY_SD);
+            }while(dt < M_DELAY_MIN || dt > M_DELAY_MAX);
+            t_d = i;
+            t_a = t_d + dt;
+        } else {
             console.log('[WARNING] Unidentified delay type - ignoring delay');
             t_a = t_d = i;
             d_type = 'NONE';
         }
         frames_out.push({ FRN: frn_t, T_display: t_d, T_arrival: t_a, Delay: dt });
         frn_t++;
+    }
+    if(d_type == 'NORMAL' && ct > 0){
+        console.log('[INFO] Normal distribution generator wielded '+ct+' out-of-bounds Delays - that were re-generated');
     }
     return frames_out;
 }
@@ -93,15 +108,20 @@ function getRandomIntInclusiveUniform(min, max) {
 }
 
 //Generate rand with mu and sigma (GausianNoise - Normal Distribution) (ref: https://en.wikipedia.org/wiki/Box-Muller_transform)
-function getRandomIntInclusiveNormal(mu, sigma){
+function getRandomIntInclusiveNormal(mu, sigma, min = 0, max = Number.POSITIVE_INFINITY){
     var z0, z1, u1, u2;
+
     do{
         u1 = Math.random() * (1.0 / 1.0);
         u2 = Math.random() * (1.0 / 1.0);
     }
     while(u1 <= EPSILON);
+    var oo = Math.cos(TWO_PI * u2);
+    var oo0 = 2.0 * Math.log(u1);
+    var ii = oo * oo0;
+    var kk = Math.sqrt(ii);
 
-    z0 = Math.sqrt(2.0 * Math.log(u1)) * Math.cos(TWO_PI * u2);
-    z0 = Math.sqrt(2.0 * Math.log(u1)) * Math.sin(TWO_PI * u2);
+    z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(TWO_PI * u2);
+    z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(TWO_PI * u2);
     return z0 * sigma + mu;
 }
