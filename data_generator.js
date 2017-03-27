@@ -1,3 +1,5 @@
+var tl = require("./tools.js");
+
 /*--- OPTIONS ---*/
 const DIR_OUT = 'generated';                    //all output will be placed in this folder
 const DESCRIPTOR_FILENAME = 'data_info.json'    //parameters and info on the generated files
@@ -27,6 +29,8 @@ const TWO_PI = 2*PI;
 //Entry point
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, 'NONE');
 var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, 'UNIFORM');
+tl.writeJSON(V_FILENAME, video_out);
+tl.writeJSON(M_FILENAME, meta_out);
 console.log('done')
 
 /**
