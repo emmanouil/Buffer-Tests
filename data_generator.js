@@ -45,21 +45,22 @@ function generate_frames(s_id, framerate = (1/30), d_type = 'NONE') {
     frames_out.TYPE = s_id;
     framerate = framerate*1000;
 
-    var frn_t = 0, t_a = 0, t_d = 0;
+    var frn_t = 0, t_a = 0, t_d = 0, dt = 0;
 
     for (var i = STREAMS_INIT_TIMESTAMP; i < STREAMS_FINAL_TIMESTAMP; i += framerate) {
         if(d_type == 'NONE'){
             t_a = t_d = i;
         }else if(d_type == 'UNIFORM'){
             //TODO add distributions
+            dt = getRandomIntInclusiveUniform(M_DELAY_MIN, M_DELAY_MAX);
             t_d = i;
-            t_a = t_d + getRandomIntInclusiveUniform(M_DELAY_MIN, M_DELAY_MAX);
+            t_a = t_d + dt;
         }else{
             console.log('[WARNING] Unidentified delay type - ignoring delay');
             t_a = t_d = i;
             d_type = 'NONE';
         }
-        frames_out.push({ T_display: t_d, T_arrival: t_a, FRN: frn_t });
+        frames_out.push({ FRN: frn_t, T_display: t_d, T_arrival: t_a, Delay: dt });
         frn_t++;
     }
     return frames_out;
