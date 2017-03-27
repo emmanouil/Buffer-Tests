@@ -1,6 +1,5 @@
 //imports
-var path = require("path"),
-    fs = require("fs");
+var tl = require("./tools.js");
 
 //file-out setup
 const NODE_OUT_PATH = 'x64/Debug/node_out/';
@@ -87,7 +86,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
 
 
 
-        write(RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
+        tl.write(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
 
         T_zero = video_ordered[0].T;    //first vframe timestamp
         T_start = 0;    //timestamp of vframe when video starts playback
@@ -193,7 +192,7 @@ for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFE
                 }
             }
 
-            append(RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', '\n' + (current_vframe.T - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T - Vbuff[0].T) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
+            tl.append(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', '\n' + (current_vframe.T - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T - Vbuff[0].T) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
 
         }
 
@@ -207,60 +206,6 @@ console.log('ALL tests done');
 
 
 /*-- helper analysis functions --*/
-function parse_playlist() {
-
-
-    //read from playlist elements and push the coords set in coord_n[]
-    for (var i = 0; i < pl_list.length; i++) {
-        if (pl_list[i].endsWith('.m4s')) {
-            continue;
-        }
-        if (pl_list[i].endsWith('.txt')) {
-            coord_n = coord_files.push(fs.readFileSync(pl_list[i].toString(), 'utf8'));
-        } else {
-            console.log("[WARNING]playlist element " + pl_list[i] + " not parsed")
-        }
-    }
-
-    //itterate coord_n[] with discarding empty lines and pushing everything in sets[]
-    for (var i = 0; i < coord_files.length; i++) {
-        var t_in = coord_files[i].split(/\r\n|\r|\n/);
-        for (var j = 0; j < t_in.length; j++) {
-            if (t_in[j].length < 4) {
-                continue;
-            } else {
-                sets.push(t_in[j].slice().toString());
-            }
-        }
-    }
-
-
-    //iterate sets and separate proj[] and dela[]
-    var curr_seg = 0;
-    for (var i = 0; i < sets.length; i++) {
-        var cs = sets[i].split(' ');
-        for (var j = 0; j < cs.length; j++) {
-            cs[j] = cs[j].split(':');
-        }
-
-        if (cs[0][1].toString().includes('PROJ')) {
-            cs[4][1] = parseInt(cs[4][1]);
-            cs[2][1] = parseInt(cs[2][1]);
-            proj.push(cs);
-            curr_seg = cs[2][1]
-        } else if (cs[0][1].toString().includes('DELA')) {
-            cs.push(["SEG_ORIG", curr_seg])
-            cs[4][1] = parseInt(cs[4][1]);
-            cs[1][1] = parseInt(cs[1][1]);
-            cs[26][1] = parseInt(cs[26][1]);
-            cs.push(["T_D", cs[1][1] - cs[26][1]])
-            dela.push(cs);
-        }
-    }
-
-}
-
-
 function check_delays() {
     minObservedDelay = maxObservedDelay = first_dela_frame[26][1];
     for (var i = 0; i < dela_ordered.length; i++) {
@@ -350,15 +295,4 @@ function bubbleSortArrayByProperty(array, property) {
             }
         }
     } while (swapped);
-}
-
-
-function write(filename, data) {
-    var file = NODE_OUT_PATH + filename;
-    fs.writeFileSync(file, data, { encoding: null, flags: 'w' });
-}
-
-function append(filename, data) {
-    var file = NODE_OUT_PATH + filename;
-    fs.appendFileSync(file, data, { encoding: null, flags: 'a' });
 }
