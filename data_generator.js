@@ -43,7 +43,7 @@ function generate_frames(s_id, framerate = (1/30), d_type = 'NONE') {
         }else if(d_type == 'UNIFORM'){
             //TODO add distributions
             t_d = i;
-            t_a = t_d + getRandomIntInclusive(M_DELAY_MIN, M_DELAY_MAX);
+            t_a = t_d + getRandomIntInclusiveUniform(M_DELAY_MIN, M_DELAY_MAX);
         }else{
             console.log('[WARNING] Unidentified delay type - ignoring delay');
             t_a = t_d = i;
@@ -73,8 +73,9 @@ function analyze_stream(s_in) {
 }
 
 
-//Helper functions (from MDN)
-function getRandomIntInclusive(min, max) {
+//Helper functions
+//Generate rand between min and max (Uniform Distribution) (from MDN)
+function getRandomIntInclusiveUniform(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
