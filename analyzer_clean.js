@@ -2,7 +2,7 @@
 var tl = require("./tools.js");
 
 //file-out setup
-const NODE_OUT_PATH = 'x64/Debug/node_out/';
+const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'video_out.vid'
 const META_IN_FILE = 'meta_out_norm.mtd'
 var date = new Date();
@@ -21,8 +21,6 @@ const META_BUFFER_PLAY_THRESHOLD_MAX = 4000; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const TEST_DURATION = 40000; //in ms
 
-//set at check_consistency()
-var finalFrame = 0, finalTimeStamp = 0, actualFrames = 0, firstFrame = -1, firstTimestamp = 0;
 //set at check_delays()
 var maxObservedDelay = 0, minObservedDelay = 99999;
 
@@ -30,21 +28,16 @@ var maxObservedDelay = 0, minObservedDelay = 99999;
 var proj = [], dela = [], dela_ordered = [], video_ordered = [];
 
 //Actual execution entry point
-
 dela = proj = tl.readJSON(META_IN_FILE);
 video_ordered = tl.readJSON(VIDEO_IN_FILE);
 //bubble sort to delayed coords
 dela_ordered = dela.slice(0);
-bubbleSortArray(dela_ordered, 4); //sort according to FRN
+//bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
 
 //check that everything is as supposed to be (regarding the dataset)
 var last_dela_frame = dela_ordered[dela_ordered.length - 1];
 var first_dela_frame = dela_ordered[0];
-firstTimestamp = first_dela_frame[28][1];
-finalTimeStamp = last_dela_frame[28][1];
-actualFrames = dela_ordered.length;
-finalFrame = last_dela_frame[4][1];
 
 check_delays();
 
