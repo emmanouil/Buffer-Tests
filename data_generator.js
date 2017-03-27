@@ -18,10 +18,16 @@ const M_DELAY_MAX = 2000;    //(in ms)
 const M_STREAM_ID = 'META';
 //const M_DELAY_DISTRIBUTION = 'UNIFORM';
 
+//other consts (using in functions)
+const EPSILON = Number.EPSILON;
+const PI = Math.PI;
+const TWO_PI = 2*PI;
+
 
 //Entry point
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, 'NONE');
 var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, 'UNIFORM');
+console.log('done')
 
 /**
  * Returns array with vframes
@@ -79,4 +85,18 @@ function getRandomIntInclusiveUniform(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+//Generate rand with mu and sigma (GausianNoise - Normal Distribution) (ref: https://en.wikipedia.org/wiki/Box-Muller_transform)
+function getRandomIntInclusiveNormal(mu, sigma){
+    var z0, z1, u1, u2;
+    do{
+        u1 = Math.random() * (1.0 / 1.0);
+        u2 = Math.random() * (1.0 / 1.0);
+    }
+    while(u1 <= EPSILON);
+
+    z0 = Math.sqrt(2.0 * Math.log(u1)) * Math.cos(TWO_PI * u2);
+    z0 = Math.sqrt(2.0 * Math.log(u1)) * Math.sin(TWO_PI * u2);
+    return z0 * sigma + mu;
 }
