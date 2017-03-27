@@ -47,9 +47,6 @@ actualFrames = dela_ordered.length;
 finalFrame = last_dela_frame[4][1];
 
 check_delays();
-generate_video_frames();
-
-
 
 var test_buffer = [];
 for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
@@ -215,25 +212,6 @@ function check_delays() {
         }
         if (maxObservedDelay < local_delay) {
             maxObservedDelay = local_delay;
-        }
-    }
-}
-
-
-function generate_video_frames() {
-    var frn_t = 0;
-    for (var i = Math.ceil(firstTimestamp); i < Math.floor(finalTimeStamp); i += 33) {
-        video_ordered.push({ TYPE: 'VID', T: i, T_display: i, T_arrival: i, FRN: frn_t });
-        frn_t++;
-    }
-    for (var i = 0; i < video_ordered.length; i++) {
-        var item = video_ordered[i];
-        if (i < video_ordered.length - 1) {
-            item.TnextDiff = parseInt(video_ordered[i + 1].T_display - item.T_display);
-            item.FRNnext = parseInt(video_ordered[i + 1].FRN);
-        } else {
-            item.TnextDiff = -1;
-            item.FRNnext = -1;
         }
     }
 }
