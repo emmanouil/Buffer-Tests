@@ -2,6 +2,8 @@ var tl = require("./tools.js");
 
 /*--- OPTIONS ---*/
 const DIR_OUT = 'generated';                    //all output will be placed in this folder
+const FILE_EXTENTION = '.json'                  //file extention for generated data files
+//NOTE: The final out file will be in the format DATESTAMP_X_FILENAME_FREQ_DISTRIBUTION_MIN_MAX.EXTENTION
 const DESCRIPTOR_FILENAME = 'data_info.json'    //parameters and info on the generated files
 //const NUMBER_OF_STREAMS = 1;                  //excluding the video stream (only one video for now)
 const STREAMS_DURATION = 100000                 //length of generated streams (in ms)
@@ -9,18 +11,18 @@ const STREAMS_INIT_TIMESTAMP = 0;               //first timestamp of generated s
 const STREAMS_FINAL_TIMESTAMP = STREAMS_INIT_TIMESTAMP + STREAMS_DURATION;
 
 /*--- video ---*/
-const V_FILENAME = 'video_out.vid'
+const V_FILENAME = 'video_out';
 const V_FREQ = 30;
 const V_FRAMERATE = 1 / V_FREQ;
 const V_DELAY_DISTR = 'NONE';
 const V_STREAM_ID = 'VID';
 /*--- metadata ---*/
-const M_FILENAME = 'meta_out.mtd'
+const M_FILENAME = 'meta_out';
 const M_FREQ = 30;
 const M_FRAMERATE = 1 / M_FREQ;
-const M_DELAY_DISTR = 'NORMAL';
-const M_DELAY_MIN = 100;    //(in ms)
-const M_DELAY_MAX = 2000;    //(in ms)
+const M_DELAY_DISTR = 'UNIFORM';
+const M_DELAY_MIN = 200;    //(in ms)
+const M_DELAY_MAX = 3200;    //(in ms)
 const M_DELAY_MEAN = (M_DELAY_MAX + M_DELAY_MIN ) / 2;  //used for NORMAL DISTR (mu)
 const M_DELAY_SD = (M_DELAY_MAX + M_DELAY_MIN ) / 7;  //used for NORMAL DISTR (sigma)
 const M_STREAM_ID = 'META';
@@ -34,8 +36,8 @@ const TWO_PI = 2*PI;
 //Entry point
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
 var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
-tl.writeJSON(V_FILENAME, video_out);
-tl.writeJSON(M_FILENAME, meta_out);
+tl.writeJSON(V_FILENAME, video_out+FILE_EXTENTION);
+tl.writeJSON(M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+FILE_EXTENTION, meta_out);
 console.log('done')
 
 /**
