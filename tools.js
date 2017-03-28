@@ -3,7 +3,9 @@ var path = require("path"),
     fs = require("fs");
 
 //exports
+//file methods
 exports.append = append;
+exports.appendJSON = appendJSON;
 exports.read = read;
 exports.readJSON = readJSON;
 exports.write = write;
@@ -14,6 +16,9 @@ function append(filename, data) {
     fs.appendFileSync(filename, data, { encoding: null, flags: 'a' });
 }
 
+function appendJSON(filename, data) {
+    fs.appendFileSync(filename, JSON.stringify(data), { encoding: null, flags: 'a' });
+}
 function read(filename){
     var ex = fs.existsSync(filename);
     if(!ex){
