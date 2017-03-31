@@ -14,13 +14,13 @@ const STREAMS_FINAL_TIMESTAMP = STREAMS_INIT_TIMESTAMP + STREAMS_DURATION;
 const V_FILENAME = 'video_out';
 const V_FREQ = 30;
 const V_FRAMERATE = 1 / V_FREQ;
-const V_DELAY_DISTR = 'NONE';
+const V_DELAY_DISTR = 'NONE';   //NONE, UNIFORM, NORMAL
 const V_STREAM_ID = 'VID';
 /*--- metadata ---*/
 const M_FILENAME = 'meta_out';
 const M_FREQ = 30;
 const M_FRAMERATE = 1 / M_FREQ;
-const M_DELAY_DISTR = 'UNIFORM';
+const M_DELAY_DISTR = 'NORMAL';    //NONE, UNIFORM, NORMAL
 const M_DELAY_MIN = 200;    //(in ms)
 const M_DELAY_MAX = 3200;    //(in ms)
 const M_DELAY_MEAN = (M_DELAY_MAX + M_DELAY_MIN ) / 2;  //used for NORMAL DISTR (mu)
@@ -35,9 +35,21 @@ const TWO_PI = 2*PI;
 
 //Entry point
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
-var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
-tl.writeJSON(V_FILENAME, video_out+FILE_EXTENTION);
-tl.writeJSON(M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+FILE_EXTENTION, meta_out);
+tl.writeJSON(DIR_OUT+'/'+V_FILENAME, video_out+FILE_EXTENTION);
+var datas = [];
+for(var t_n =0; t_n<200; t_n++){
+    var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
+    tl.writeJSON(DIR_OUT+'/'+M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+'_'+t_n+FILE_EXTENTION, meta_out);
+    var data_out = {
+        File : DIR_OUT+'/'+M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+'_'+t_n+FILE_EXTENTION,
+        MinDelay: M_DELAY_MIN,
+        MaxDelay: M_DELAY_MAX,
+        Distribution: M_DELAY_DISTR,
+        ID: t_n
+    }
+    datas.push(data_out);
+}
+tl.writeJSON('testfiles'+M_DELAY_DISTR+'.txt',datas);
 console.log('done')
 
 /**
