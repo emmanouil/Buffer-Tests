@@ -6,7 +6,7 @@ const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'video_out.vid';
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
 
 
 //constants
@@ -97,6 +97,11 @@ if (!SINGLE_FILE) {
 } else {
     var results = do_analysis(META_IN_FILE);
 }
+
+console.log('All test DONE');
+
+
+
 
 function do_analysis(file_in) {
 
@@ -287,10 +292,6 @@ function do_analysis(file_in) {
     return analysis_results;
 
 }
-
-console.log('ALL tests done');
-
-
 
 /*-- helper analysis functions --*/
 function check_delays() {
