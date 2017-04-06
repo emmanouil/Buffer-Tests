@@ -1,3 +1,4 @@
 node_out/
+node_modules/
 meta_out*
 video_out*
