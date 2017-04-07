@@ -33,67 +33,67 @@ if (!SINGLE_FILE) {
     var results_n = [];
     for (var i_t = 0; i_t < files_n_length; i_t++) {
         var result = do_analysis(files_n[i_t].File);
-//        result.Type = 'NORMAL';
+        //        result.Type = 'NORMAL';
         results_n.push(result);
     }
     for (var i_t = 0; i_t < files_u_length; i_t++) {
         var result = do_analysis(files_u[i_t].File);
-//        result.Type = 'UNIFORM';
+        //        result.Type = 'UNIFORM';
         results_u.push(result);
     }
-    var res_to_file_n = [{'Mbuffsize':0, 'Events':0, 'Frames':0, 'Duration':0}];
-    var res_to_file_u = [{'Mbuffsize':0, 'Events':0, 'Frames':0, 'Duration':0}];
-    for(var i_i =META_BUFFER_PLAY_THRESHOLD_MIN; i_i <=META_BUFFER_PLAY_THRESHOLD_MAX; i_i +=META_BUFFER_PLAY_THRESHOLD_STEP ){
-        res_to_file_n[i_i/META_BUFFER_PLAY_THRESHOLD_STEP]={'Mbuffsize':i_i, 'Events':0, 'Frames':0, 'Duration':0};
-        res_to_file_u[i_i/META_BUFFER_PLAY_THRESHOLD_STEP]={'Mbuffsize':i_i, 'Events':0, 'Frames':0, 'Duration':0};
+    var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
+    var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
+    for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
+        res_to_file_n[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'Duration': 0 };
+        res_to_file_u[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'Duration': 0 };
     }
 
-     //Object.assign({},res_to_file_n);
-     var runs = 0;
-    results_n.forEach(function(element, index, array){
+    //Object.assign({},res_to_file_n);
+    var runs = 0;
+    results_n.forEach(function (element, index, array) {
         runs++;
-        for(var i_i =0; i_i<element.length; i_i++){
+        for (var i_i = 0; i_i < element.length; i_i++) {
             var a = element[i_i];
             var tmp_index = tl.findIndexByProperty(res_to_file_n, 'Mbuffsize', a.Mbuffsize);
-            if(tmp_index>0){
-                res_to_file_n[tmp_index].Events +=a.Events;
-                res_to_file_n[tmp_index].Frames +=a.Frames;
-                res_to_file_n[tmp_index].Duration +=a.Duration;
-            }else{
+            if (tmp_index > 0) {
+                res_to_file_n[tmp_index].Events += a.Events;
+                res_to_file_n[tmp_index].Frames += a.Frames;
+                res_to_file_n[tmp_index].Duration += a.Duration;
+            } else {
                 console.log('[ERROR] not found');
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_'+runs+'.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
-    res_to_file_n.forEach(function(elem, index, array){
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_'+runs+'.txt', elem.Mbuffsize +'\t'+elem.Events/runs+'\t'+elem.Frames/runs+'\t'+elem.Duration/runs+'\n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
+    res_to_file_n.forEach(function (elem, index, array) {
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + elem.Events / runs + '\t' + elem.Frames / runs + '\t' + elem.Duration / runs + '\n');
     });
-    console.log('normal runs '+runs);
+    console.log('normal runs ' + runs);
 
     runs = 0;
-    results_u.forEach(function(element, index, array){
+    results_u.forEach(function (element, index, array) {
         runs++;
-        for(var i_i =0; i_i<element.length; i_i++){
+        for (var i_i = 0; i_i < element.length; i_i++) {
             var a = element[i_i];
             var tmp_index = tl.findIndexByProperty(res_to_file_u, 'Mbuffsize', a.Mbuffsize);
-            if(tmp_index>0){
-                res_to_file_u[tmp_index].Events +=a.Events;
-                res_to_file_u[tmp_index].Frames +=a.Frames;
-                res_to_file_u[tmp_index].Duration +=a.Duration;
-            }else{
+            if (tmp_index > 0) {
+                res_to_file_u[tmp_index].Events += a.Events;
+                res_to_file_u[tmp_index].Frames += a.Frames;
+                res_to_file_u[tmp_index].Duration += a.Duration;
+            } else {
                 console.log('[ERROR] not found');
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_'+runs+'.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
-    res_to_file_u.forEach(function(elem, index, array){
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_'+runs+'.txt', elem.Mbuffsize +'\t'+elem.Events/runs+'\t'+elem.Frames/runs+'\t'+elem.Duration/runs+'\n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
+    res_to_file_u.forEach(function (elem, index, array) {
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + elem.Events / runs + '\t' + elem.Frames / runs + '\t' + elem.Duration / runs + '\n');
     });
-    console.log('uniform runs '+runs);
+    console.log('uniform runs ' + runs);
     console.log('done');
 
 
-            //tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
+    //tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
 } else {
     var results = do_analysis(META_IN_FILE);
 }
@@ -102,13 +102,9 @@ console.log('All test DONE');
 
 
 
-
 function do_analysis(file_in) {
 
     var analysis_results = [];
-
-    //file-in setup
-    var coord_files = [], coord_n, sets = [];   //vars used for playlist parsing
 
     //set at check_delays()
     var maxObservedDelay = 0, minObservedDelay = 99999;
@@ -124,24 +120,12 @@ function do_analysis(file_in) {
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
 
-    //check that everything is as supposed to be (regarding the dataset)
-    var last_dela_frame = dela_ordered[dela_ordered.length - 1];
-    var first_dela_frame = dela_ordered[0];
-
-//    check_delays();
-
-    var test_buffer = [];
-
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
         for (var vbuff_thres = VIDEO_BUFFER_PLAY_THRESHOLD_MIN; vbuff_thres <= VIDEO_BUFFER_PLAY_THRESHOLD_MAX; vbuff_thres += VIDEO_BUFFER_PLAY_THRESHOLD_STEP) {
             var m_r_events = 0, m_r_duration = 0, m_r_frames = 0;
             //for resetting queues
-            var video_ordered_tmp = video_ordered.slice(0);
-            var dela_ordered_tmp = dela_ordered.slice(0);
-            var proj_tmp = proj.slice(0);
-
             var dela_list = [];
-            var dela_list_index = 0;
+
             for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
                 var elem = dela_ordered[i_a];
                 var item = {};
@@ -163,8 +147,8 @@ function do_analysis(file_in) {
             var dela_Tarr_ordered = dela_list.slice(0);
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
-            if(SINGLE_FILE){
-                tl.write(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
+            if (SINGLE_FILE) {
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
             }
 
             T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -277,16 +261,16 @@ function do_analysis(file_in) {
                     m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
                 }
 
-            if(SINGLE_FILE){
-                tl.append(NODE_OUT_PATH+RESULTS_FILE + '_FIXED_'+DISTRIBUTION+'_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
-                '\n' + (current_vframe.T_display - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
-            }
+                if (SINGLE_FILE) {
+                    tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
+                        '\n' + (current_vframe.T_display - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
+                }
 
 
             }
-//            tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
+            //            tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
 
-            analysis_results.push({'Mbuffsize': mbuff_thres, 'Events':m_r_events, 'Frames':m_r_frames, 'Duration':m_r_duration});
+            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': m_r_events, 'Frames': m_r_frames, 'Duration': m_r_duration });
         }
     }
     return analysis_results;
