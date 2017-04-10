@@ -7,6 +7,7 @@ const VIDEO_IN_FILE = 'video_out.vid';
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
 const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events)
 
 
 //constants
@@ -147,7 +148,7 @@ function do_analysis(file_in) {
             var dela_Tarr_ordered = dela_list.slice(0);
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
-            if (SINGLE_FILE) {
+            if (DETAILED_ANALYSIS) {
                 tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
             }
 
@@ -261,7 +262,7 @@ function do_analysis(file_in) {
                     m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
                 }
 
-                if (SINGLE_FILE) {
+                if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
                         '\n' + (current_vframe.T_display - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
                 }
