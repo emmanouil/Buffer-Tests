@@ -7,7 +7,7 @@ const VIDEO_IN_FILE = 'video_out.vid';
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
 const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events)
+const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events)
 
 
 //constants
@@ -153,7 +153,6 @@ function do_analysis(file_in) {
             }
 
             T_zero = video_ordered[0].T_display;    //first vframe timestamp
-            T_start = 0;    //timestamp of vframe when video starts playback
             T_end = T_zero + TEST_DURATION;
             var Vbuff = [];
             var current_vframe = video_ordered[0];
@@ -177,7 +176,6 @@ function do_analysis(file_in) {
                 Vbuff.push(video_ordered[v_i]);     //push current vframe in Vbuffer
                 if (current_vbuff_status == 'NEW') {
                     if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
-                        T_start = Vbuff[Vbuff.length - 1].T_display;
                         Vbuff.shift();
                         current_vbuff_status = 'PLAYING';
                         console.log("VIDEO PLAYING")
