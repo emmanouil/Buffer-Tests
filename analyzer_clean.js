@@ -176,21 +176,18 @@ function do_analysis(file_in) {
                 Vbuff.push(video_ordered[v_i]);     //push current vframe in Vbuffer
                 if (current_vbuff_status == 'NEW') {
                     if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
-                        Vbuff.shift();
-                        current_vbuff_status = 'PLAYING';
-                        console.log("VIDEO PLAYING")
+                        current_vbuff_status = 'READY';
+                        console.log("VIDEO READY")
                     }
                 } else if (current_vbuff_status == 'PLAYING') {
                     if (Vbuff.length == 0) {
                         current_vbuff_status = 'BUFFERING';
                         console.log("VIDEO BUFFERING")
-                    } else {
-                        Vbuff.shift();                  //if we are playing and frame is due, remove from buffer
                     }
                 } else if (current_vbuff_status == 'BUFFERING') {
                     if (Vbuff.length > 0) {
-                        current_vbuff_status = 'PLAYING';
-                        console.log("VIDEO PLAYING")
+                        current_vbuff_status = 'READY';
+                        console.log("VIDEO READY")
                     }
                 }
 
@@ -259,6 +256,15 @@ function do_analysis(file_in) {
                 if (current_mbuff_status == 'BUFFERING') {
                     m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
                 }
+
+
+                //check both buffers if ready for playback
+                if(current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY'){
+                    current_vbuff_status = 'PLAYING';
+                    Vbuff.shift();
+                }
+
+
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
