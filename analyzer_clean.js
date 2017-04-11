@@ -264,6 +264,12 @@ function do_analysis(file_in) {
                     Vbuff.shift();
                 }
 
+                //removed qeued element
+                if(current_vbuff_status == 'PLAYING'){
+                    Vbuff.shift();
+                }
+
+
 
 
                 if (DETAILED_ANALYSIS) {
