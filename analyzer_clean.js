@@ -223,16 +223,17 @@ function do_analysis(file_in) {
                         }
                     }
                 }
+
+                if(Mbuff.length == 0){
+                    Mbuff_size = 0;
+                }
+
                 Mbuff_changed = false;
 
                 if (current_mbuff_status == 'NEW') {
                     if (mbuff_thres <= Mbuff_size) {   //check if we are on playback levels
-                        if (Mbuff[0].T_display < Vbuff[0].T_display) {
-                            Mbuff.shift();
-                            Mbuff_changed = true;
-                        }
-                        current_mbuff_status = 'PLAYING';
-                        console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + Vbuff[0].T_display)
+                        current_mbuff_status = 'READY';
+                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + Vbuff[0].T_display)
                     }
                 } else if (current_mbuff_status == 'PLAYING') {
                     if (Mbuff.length == 0 || Mbuff_size == 0) {
@@ -240,16 +241,11 @@ function do_analysis(file_in) {
                         m_r_events++;
                         m_r_frames++;
                         console.log("META BUFFERING")
-                    } else {
-                        if (Mbuff[0].T_display < Vbuff[0].T_display) {
-                            Mbuff.shift();
-                            Mbuff_changed = true;
-                        }
                     }
                 } else if (current_mbuff_status == 'BUFFERING') {
                     m_r_frames++;
-                    if (Mbuff_size > 0) {
-                        current_mbuff_status = 'PLAYING';
+                    if (Mbuff_size > 0 && Mbuff.length > 0) {
+                        current_mbuff_status = 'READY';
                         console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + Vbuff[0].T_display)
                     }
                 }
@@ -259,14 +255,23 @@ function do_analysis(file_in) {
 
 
                 //check both buffers if ready for playback
-                if(current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY'){
+                if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
                     current_vbuff_status = 'PLAYING';
-                    Vbuff.shift();
+                }
+                if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
+                    if (Mbuff[0].T_display <= Vbuff[0].T_display) {
+                        current_mbuff_status = 'PLAYING';
+                        Mbuff_changed = true;
+                    }
                 }
 
                 //removed qeued element
-                if(current_vbuff_status == 'PLAYING'){
+                if (current_vbuff_status == 'PLAYING') {
                     Vbuff.shift();
+                }
+                if (current_mbuff_status == 'PLAYING') {
+                    Mbuff.shift();
+                    Mbuff_changed = true;
                 }
 
 
