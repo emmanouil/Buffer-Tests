@@ -7,7 +7,7 @@ const VIDEO_IN_FILE = 'video_out.vid';
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
 const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events)
+const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 
 //constants
@@ -67,7 +67,7 @@ if (!SINGLE_FILE) {
     });
     tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
     res_to_file_n.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + elem.Events / runs + '\t' + elem.Frames / runs + '\t' + elem.Duration / runs + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'N' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\n');
     });
     console.log('normal runs ' + runs);
 
@@ -88,7 +88,7 @@ if (!SINGLE_FILE) {
     });
     tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
     res_to_file_u.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + elem.Events / runs + '\t' + elem.Frames / runs + '\t' + elem.Duration / runs + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + 'U' + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\n');
     });
     console.log('uniform runs ' + runs);
     console.log('done');
@@ -149,7 +149,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f)');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff_status');
             }
 
             T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -279,7 +279,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
-                        '\n' + (current_vframe.T_display - T_zero) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display) + '\t' + Mbuff_size + '\t' + Mbuff_f_size);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) +'\t'+ Mbuff.length +'\t'+ current_mbuff_status);
                 }
 
 
