@@ -153,8 +153,8 @@ function do_analysis(file_in) {
                 tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff_status');
             }
 
-            T_zero = video_ordered[0].T_display;    //first vframe timestamp
-            T_end = T_zero + TEST_DURATION;
+            var T_zero = video_ordered[0].T_display;    //first vframe timestamp
+            var T_end = T_zero + TEST_DURATION;
             var Vbuff = [];
             var current_vframe = video_ordered[0];
             var current_vbuff_status = 'NEW';
@@ -217,10 +217,14 @@ function do_analysis(file_in) {
                         }
 
                         var b_index = 0;
-                        while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
-                            Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
-                            b_index++;
-                            d_index++;
+                        if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
+                            Mbuff_size = 0;
+                        }else{
+                            while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
+                                Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
+                                b_index++;
+                                d_index++;
+                            }
                         }
                     }
                 }
