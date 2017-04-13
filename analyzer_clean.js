@@ -6,11 +6,12 @@ const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'video_out.vid';
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
+const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 
 //constants
+const DEPENDENT = true;
 const DISTRIBUTION = 'NORMAL';
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
@@ -267,7 +268,9 @@ function do_analysis(file_in) {
 
                 //removed qeued element
                 if (current_vbuff_status == 'PLAYING') {
-                    Vbuff.shift();
+                    if(!DEPENDENT || current_mbuff_status == 'PLAYING'){
+                        Vbuff.shift();
+                    }
                 }
                 if (current_mbuff_status == 'PLAYING') {
                     Mbuff.shift();
