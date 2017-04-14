@@ -164,6 +164,7 @@ function do_analysis(file_in) {
             var Mbuff_size = 0;
             var Mbuff_changed = false;
             var m_index = 0;
+            var m_next_FRN = 0;
             var current_mframe = dela_Tarr_ordered[m_index];
             var current_mbuff_status = 'NEW';
 
@@ -206,6 +207,7 @@ function do_analysis(file_in) {
                     bubbleSortArrayByProperty(Mbuff, 'FRN');
                     //calculate fragmented buffer size
                     Mbuff_f_size = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
+
                     //calculate non-fragmented buffer size
                     if (Mbuff.length > 1) {
                         var d_index = 0;
@@ -217,19 +219,16 @@ function do_analysis(file_in) {
                         }
 
                         var b_index = 0;
-                        if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
-                            Mbuff_size = 0;
-                        }else{
-                            while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
-                                Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
-                                b_index++;
-                                d_index++;
-                            }
+                        while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
+                            Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
+                            b_index++;
+                            d_index++;
                         }
                     }
                 }
 
-                if(Mbuff.length == 0){
+                //if next frame number is not as expected, discard calculated buffer size
+                if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
                     Mbuff_size = 0;
                 }
 
@@ -272,12 +271,12 @@ function do_analysis(file_in) {
 
                 //removed qeued element
                 if (current_vbuff_status == 'PLAYING') {
-                    if(!DEPENDENT || current_mbuff_status == 'PLAYING'){
+                    if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
                         Vbuff.shift();
                     }
                 }
                 if (current_mbuff_status == 'PLAYING') {
-                    Mbuff.shift();
+                    m_next_FRN = Mbuff.shift().FRN + 1;
                     Mbuff_changed = true;
                 }
 
@@ -286,7 +285,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) +'\t'+ Mbuff.length +'\t'+ current_mbuff_status);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) + '\t' + Mbuff.length + '\t' + current_mbuff_status);
                 }
 
 
