@@ -1,4 +1,5 @@
 node_out/
 node_modules/
+plotter/data/
 meta_out*
 video_out*
