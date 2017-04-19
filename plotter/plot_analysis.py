@@ -58,31 +58,14 @@ analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
 toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
 
-with open(analysis_file_in, 'r') as f_in:
-#    print("%s %s" % ("Analysis FILE IN: \n", f_in.read()))
-    data_in = csv.reader(f_in, delimiter='\t')
-    i = 0
-    for row in data_in:
-        if(row[0]=='0'):
-            continue
-        if(i>0):
-            Buffsize.append(row[0])
-            RebuffEvents.append(row[1])
-            RebuffFrames.append(row[2])
-            RebuffDuration.append(row[3])
-        i+=1
-
-    #Draw Stuff:
-    plt.plot(Buffsize, RebuffEvents)
-    plt.legend('Normal Distribution')
-    plt.ylabel('Avg. Rebuff Frames')
-    plt.xlabel('Buffer Size (s)')
-    plt.ylim(ymin=0)
-#    plt.xlim(xmin=0)
-    plt.show()
+#Draw Stuff:
+fig, ax = plt.subplots()
+ax.plot(toDrawN[0], toDrawN[1], 'r', label='Normal Distr.')
+ax.plot(toDrawU[0], toDrawU[1], 'b', label='Uniform Distr.')
+legend = ax.legend(loc='upper center', shadow=False, fontsize='large')
+legend.get_frame().set_facecolor('#F2F4F7')
+plt.show()
 
 
-
-
-#Exit point:
+#EXIT POINT
 
