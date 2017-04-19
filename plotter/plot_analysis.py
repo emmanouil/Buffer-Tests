@@ -2,19 +2,25 @@ import matplotlib.pyplot as plt
 import csv
 import sys
 
+
+
 #Parameters:
 
-#the following two parameters are used if file is provided as argument when running the script
 DATA_DIR = "data"
-ANALYSIS_SUM_FILE = "16571232017_N_analysis_200.txt"
-#ANALYSIS_SUM_FILE = "16571232017_U_analysis_200.txt"
+ANALYSIS_SUM_FILE_N = "16571232017_N_analysis_200.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "16571232017_U_analysis_200.txt"  # Uniform Distribution
 
-#Holders
+
+#Holders:
+
 Buffsize = []
 RebuffEvents = []
 RebuffFrames = []
 RebuffDuration = []
 
+
+
+#Functions:
 
 def readAnalysisFile(file_in):
     """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Duration]"""
@@ -24,7 +30,6 @@ def readAnalysisFile(file_in):
     RBD = [] #rebuffer duration
     results = []
     with open(file_in, 'r') as f_in:
-    #    print("%s %s" % ("Analysis FILE IN: \n", f_in.read()))
         data_in = csv.reader(f_in, delimiter='\t')
         i = 0
         for row in data_in:
@@ -43,13 +48,9 @@ def readAnalysisFile(file_in):
         return results
 
 
-#Entry point:
 
-###Check if file was provided (else se default)
-##if(len(sys.argv)>1):
-##    analysis_file_in = sys.argv[1]
-##else:
-analysis_file_in = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE)
+
+#Entry point:
 
 
 with open(analysis_file_in, 'r') as f_in:
