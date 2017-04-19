@@ -70,7 +70,16 @@ ax1.set_xlabel('Buffer Size (s)')
 legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
 legend.get_frame().set_facecolor('#F2F4F7')
 
+#Draw Rebuff Frames
+fig1, ax2 = plt.subplots()
+ax2.plot(toDrawN[0], toDrawN[2], 'r', label='Normal Distr.')
+ax2.plot(toDrawU[0], toDrawU[2], 'b', label='Uniform Distr.')
+ax2.set_ylim(0)
+ax2.set_ylabel('Avg. Rebuff Frames')
+ax2.set_xlabel('Buffer Size (s)')
+legend = ax2.legend(loc='upper center', shadow=False, fontsize='large')
 legend.get_frame().set_facecolor('#F2F4F7')
+
 plt.show()
 
 
