@@ -59,10 +59,17 @@ toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
 
 #Draw Stuff:
-fig, ax = plt.subplots()
-ax.plot(toDrawN[0], toDrawN[1], 'r', label='Normal Distr.')
-ax.plot(toDrawU[0], toDrawU[1], 'b', label='Uniform Distr.')
-legend = ax.legend(loc='upper center', shadow=False, fontsize='large')
+
+#Draw Rebuff Events
+fig1, ax1 = plt.subplots()
+ax1.plot(toDrawN[0], toDrawN[1], 'r', label='Normal Distr.')
+ax1.plot(toDrawU[0], toDrawU[1], 'b', label='Uniform Distr.')
+ax1.set_ylim(0)
+ax1.set_ylabel('Avg. Rebuff Events')
+ax1.set_xlabel('Buffer Size (s)')
+legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
+legend.get_frame().set_facecolor('#F2F4F7')
+
 legend.get_frame().set_facecolor('#F2F4F7')
 plt.show()
 
