@@ -36,10 +36,10 @@ def readAnalysisFile(file_in):
             if(row[0]=='0'):
                 continue
             if(i>0):
-                BS.append(row[0])
-                RBE.append(row[1])
-                RBF.append(row[2])
-                RBD.append(row[3])
+                BS.append(int(row[0]))
+                RBE.append(float(row[1]))
+                RBF.append(float(row[2]))
+                RBD.append(float(row[3]))
             i+=1
         results.append(BS)
         results.append(RBE)
