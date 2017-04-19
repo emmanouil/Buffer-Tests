@@ -16,6 +16,33 @@ RebuffFrames = []
 RebuffDuration = []
 
 
+def readAnalysisFile(file_in):
+    """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Duration]"""
+    BS = []  #buffer size
+    RBE = [] #rebuffer events
+    RBF = [] #rebuffer frames
+    RBD = [] #rebuffer duration
+    results = []
+    with open(file_in, 'r') as f_in:
+    #    print("%s %s" % ("Analysis FILE IN: \n", f_in.read()))
+        data_in = csv.reader(f_in, delimiter='\t')
+        i = 0
+        for row in data_in:
+            if(row[0]=='0'):
+                continue
+            if(i>0):
+                BS.append(row[0])
+                RBE.append(row[1])
+                RBF.append(row[2])
+                RBD.append(row[3])
+            i+=1
+        results.append(BS)
+        results.append(RBE)
+        results.append(RBF)
+        results.append(RBD)
+        return results
+
+
 #Entry point:
 
 ###Check if file was provided (else se default)
