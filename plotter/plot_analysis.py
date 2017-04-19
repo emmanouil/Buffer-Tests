@@ -4,14 +4,14 @@ import sys
 
 
 
-#Parameters:
+#PARAMETERS
 
 DATA_DIR = "data"
 ANALYSIS_SUM_FILE_N = "16571232017_N_analysis_200.txt"  # Normal Distribution
 ANALYSIS_SUM_FILE_U = "16571232017_U_analysis_200.txt"  # Uniform Distribution
 
 
-#Holders:
+#HOLDERS
 
 Buffsize = []
 RebuffEvents = []
@@ -20,7 +20,7 @@ RebuffDuration = []
 
 
 
-#Functions:
+#FUNCTIONS
 
 def readAnalysisFile(file_in):
     """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Duration]"""
@@ -50,8 +50,13 @@ def readAnalysisFile(file_in):
 
 
 
-#Entry point:
+#ENTRY POINT
 
+#Get data from files
+analysis_file_in_n = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_N)
+analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
+toDrawN = readAnalysisFile(analysis_file_in_n)
+toDrawU = readAnalysisFile(analysis_file_in_u)
 
 with open(analysis_file_in, 'r') as f_in:
 #    print("%s %s" % ("Analysis FILE IN: \n", f_in.read()))
