@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from scipy import stats
 import numpy as np
 import csv
 import sys
@@ -48,6 +49,19 @@ def readAnalysisFile(file_in):
         results.append(RBD)
         return results
 
+def calculateConfidenceInterval(data_in, CI, mu, SD, N):
+    RBEMean = 0
+    RBFMean = 0
+    count = 0
+    for sample in data_in:
+        count+=1
+        RBEMean += data_in[1]
+        RBFMean += data_in[2]
+    RBEMean = RBEMean/count
+    RBFMean = RBFMean/count
+    return stats.norm.interval(CI, loc=mu, scale=SD/sqrt(N));
+
+
 
 
 
@@ -58,6 +72,8 @@ analysis_file_in_n = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_N)
 analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
 toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
+toDrawCIN = calculateConfidenceInterval(toDrawN, 0.98, 1700, 485.71, 200)
+
 
 #Draw Stuff:
 ticksXmajor = np.arange(100, int(toDrawU[0][len(toDrawU[0])-1]), 200)
