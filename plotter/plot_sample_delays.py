@@ -76,8 +76,8 @@ for i in range(minT, maxT+1, 100):
 
 #Plot
 fig1, ax1 = plt.subplots()
-ax1.scatter(dX, dU, color='r', marker='^', label='Uniform Distr.', alpha=.8)
-ax1.scatter(dX, dN, color='b', marker='s', label='Normal Distr.', alpha=.8)
+ax1.scatter(dX, dU, color='b', marker='s', label='Uniform Distr.', alpha=.8)
+ax1.scatter(dX, dN, color='r', marker='^', label='Normal Distr.', alpha=.8)
 ax1.set_ylim(0)
 #ax1.set_xticks(ticksXmajor, minor=False)
 #ax1.set_xticks(ticksXminor, minor=True)
