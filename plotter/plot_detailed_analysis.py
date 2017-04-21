@@ -82,9 +82,9 @@ for entry in valid_files:
     tmp = {}
     tmp['File'] = entry
     if entry.endswith('D.txt'):
-        tmp['Depented'] = 'True'
+        tmp['Depented'] = True
     else:
-        tmp['Depented'] = 'False'
+        tmp['Depented'] = False
         
     extracts = [c for c in entry.split('_')]
     
