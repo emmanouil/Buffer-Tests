@@ -48,7 +48,7 @@ def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf'):
         ax1.plot(toDraw[0], toDraw[2], 'r', label='Meta Buffer (C)')
         ax1.plot(toDraw[0], toDraw[3], 'y', label='Meta Buffer (F)')
         ax1.set_ylim(0)
-        ax1.set_xlim(0)
+        ax1.set_xlim(0,toDraw[0][len(toDraw[0])-1])
         ax1.grid(which='both')
     #    ax1.grid(which='minor', alpha=0.3, linestyle=':')
     #    ax1.grid(which='major', alpha=0.7, linestyle='--')
