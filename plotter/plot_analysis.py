@@ -8,6 +8,7 @@ import sys
 #PARAMETERS
 
 DATA_DIR = "data"
+OUT_DIR = "plots"
 ANALYSIS_SUM_FILE_N = "16571232017_N_analysis_200.txt"  # Normal Distribution
 ANALYSIS_SUM_FILE_U = "16571232017_U_analysis_200.txt"  # Uniform Distribution
 
@@ -64,7 +65,12 @@ def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Exten
     ax1.set_xlabel(Xlabel)
     legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
     legend.get_frame().set_facecolor('#F2F4F7')
-    plt.show()
+    if SaveToFile:
+        extracts = [c for c in ANALYSIS_SUM_FILE_N.split('_')]
+        filename=extracts[0]+'_MBuff_'+extracts[len(extracts)-1].split('.')[0]+'__'+Ylabel.replace(" ", "").replace(".", "")
+        plt.savefig(OUT_DIR+'/'+filename+Extension)
+    if ShowGraph:
+        plt.show()
 
 
 
