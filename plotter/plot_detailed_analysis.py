@@ -7,6 +7,7 @@ from os.path import isfile, join
 
 
 DATA_DIR = "data"
+OUT_DIR = "plots"
 #DATA_ID = "902132017"   # A Uniform sample
 DATA_ID = "8592132017"  # A Normal sample
 
