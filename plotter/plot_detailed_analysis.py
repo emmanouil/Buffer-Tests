@@ -8,8 +8,8 @@ from os.path import isfile, join
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-#DATA_ID = "902132017"   # A Uniform sample
-DATA_ID = "8592132017"  # A Normal sample
+DATA_ID = "902132017"   # A Uniform sample
+#DATA_ID = "8592132017"  # A Normal sample
 
 def readAnalysisFile(file_in):
     """ Input filename to read, return list with [VBuffersize], [MBuffer Size (C) - ms], [MBuffer Size (F) - ms], [MBuffer - frames], [MBuffer - status]"""
@@ -39,7 +39,7 @@ def readAnalysisFile(file_in):
         results.append(MBF)
         return results
 
-def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf'):
+def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf', ShowGraph = True):
     for entry in fileObjects:
         if(MBuffSize != -1 and MBuffSize != entry['MBuff']):
             continue
@@ -60,8 +60,9 @@ def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf'):
         print(ax1.get_ybound())
         plt.suptitle('BUFFER STATES - MBUFF:'+str(entry['MBuff'])+' DSTR:'+entry['Distr']+' DEP:'+str(entry['Depented']))
         if SaveTofile:
-            plt.savefig('MBuff'+str(entry['MBuff'])+entry['Distr']+('_D' if entry['Depented'] else '')+Extension)
-        plt.show()
+            plt.savefig(OUT_DIR+'/'+'MBuff'+str(entry['MBuff'])+entry['Distr']+('_D' if entry['Depented'] else '')+Extension)
+        if ShowGraph:
+            plt.show()
         #input("Press Enter to continue...")
 
     
@@ -87,7 +88,7 @@ for entry in valid_files:
         tmp['Depented'] = False
         
     extracts = [c for c in entry.split('_')]
-    
+   
     
     for elem in extracts:
         if (elem == 'UNIFORM'):
@@ -100,7 +101,7 @@ for entry in valid_files:
     fileObjects.append(tmp)
 
 #read data
-plotData(300, True, '.svg')
+plotData( -1, True, '.pdf', False)
 
     
    
