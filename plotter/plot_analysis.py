@@ -48,6 +48,25 @@ def readAnalysisFile(file_in):
         results.append(RBD)
         return results
 
+def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Extension='.pdf', ShowGraph=True):
+    ticksXmajor = np.arange(100, int(Xuni[len(Xuni)-1]), 200)
+    ticksXminor = np.arange(0, int(Xuni[len(Xuni)-1]), 200)
+    fig1, ax1 = plt.subplots()
+    ax1.plot(Xnorm, Ynorm, 'r', label='Normal Distr.')
+    ax1.plot(Xuni, Yuni, 'b', label='Uniform Distr.')
+    ax1.set_ylim(0)
+    ax1.set_xticks(ticksXmajor, minor=False)
+    ax1.set_xticks(ticksXminor, minor=True)
+    ax1.grid(which='both')
+    ax1.grid(which='minor', alpha=0.3, linestyle=':')
+    ax1.grid(which='major', alpha=0.7, linestyle='--')
+    ax1.set_ylabel(Ylabel)
+    ax1.set_xlabel(Xlabel)
+    legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
+    legend.get_frame().set_facecolor('#F2F4F7')
+    plt.show()
+
+
 
 
 
@@ -59,42 +78,10 @@ analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
 toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
 
-#Draw Stuff:
-ticksXmajor = np.arange(100, int(toDrawU[0][len(toDrawU[0])-1]), 200)
-ticksXminor = np.arange(0, int(toDrawU[0][len(toDrawU[0])-1]), 200)
-
-#Draw Rebuff Events
-fig1, ax1 = plt.subplots()
-ax1.plot(toDrawN[0], toDrawN[1], 'r', label='Normal Distr.')
-ax1.plot(toDrawU[0], toDrawU[1], 'b', label='Uniform Distr.')
-ax1.set_ylim(0)
-ax1.set_xticks(ticksXmajor, minor=False)
-ax1.set_xticks(ticksXminor, minor=True)
-ax1.grid(which='both')
-ax1.grid(which='minor', alpha=0.3, linestyle=':')
-ax1.grid(which='major', alpha=0.7, linestyle='--')
-ax1.set_ylabel('Avg. Rebuff Events')
-ax1.set_xlabel('Buffer Size (s)')
-legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
-legend.get_frame().set_facecolor('#F2F4F7')
-print(ax1.get_ybound())
-
-#Draw Rebuff Frames
-fig1, ax2 = plt.subplots()
-ax2.plot(toDrawN[0], toDrawN[2], 'r', label='Normal Distr.')
-ax2.plot(toDrawU[0], toDrawU[2], 'b', label='Uniform Distr.')
-ax2.set_ylim(0)
-ax2.set_xticks(ticksXmajor, minor=False)
-ax2.set_xticks(ticksXminor, minor=True)
-ax2.grid(which='both')
-ax2.grid(which='minor', alpha=0.3, linestyle=':')
-ax2.grid(which='major', alpha=0.7, linestyle='--')
-ax2.set_ylabel('Avg. Rebuff Frames')
-ax2.set_xlabel('Buffer Size (s)')
-legend = ax2.legend(loc='upper center', shadow=False, fontsize='large')
-legend.get_frame().set_facecolor('#F2F4F7')
-
-plt.show()
+#Draw Rebuff Events / Mbuff size
+plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Size (s)', 'Avg. Rebuff Events', )
+#Draw Rebuff Frames / Mbuff size
+plotData(toDrawN[0], toDrawN[2], toDrawU[0], toDrawU[2], 'Buffer Size (s)', 'Avg. Rebuff Frames')
 
 
 #EXIT POINT
