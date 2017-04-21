@@ -38,7 +38,7 @@ def readAnalysisFile(file_in):
         results.append(MBF)
         return results
 
-def plotData(MBuffSize = -1, SaveTofile = False):
+def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf'):
     for entry in fileObjects:
         if(MBuffSize != -1 and MBuffSize != entry['MBuff']):
             continue
@@ -57,10 +57,9 @@ def plotData(MBuffSize = -1, SaveTofile = False):
         legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
         legend.get_frame().set_facecolor('#F2F4F7')
         print(ax1.get_ybound())
-        plt.suptitle('BUFFER STATES - MBUFF:'+str(entry['MBuff'])+' DSTR:'+entry['Distr']+' DEP:'+entry['Depented'])
+        plt.suptitle('BUFFER STATES - MBUFF:'+str(entry['MBuff'])+' DSTR:'+entry['Distr']+' DEP:'+str(entry['Depented']))
         if SaveTofile:
-            d = '_D' if entry['Depented'] else ''
-            plt.savefig('MBuff'+str(entry['MBuff'])+entry['Distr']+d+'.pdf')
+            plt.savefig('MBuff'+str(entry['MBuff'])+entry['Distr']+('_D' if entry['Depented'] else '')+Extension)
         plt.show()
         #input("Press Enter to continue...")
 
@@ -100,7 +99,7 @@ for entry in valid_files:
     fileObjects.append(tmp)
 
 #read data
-plotData(300, True)
+plotData(300, True, '.svg')
 
     
    
