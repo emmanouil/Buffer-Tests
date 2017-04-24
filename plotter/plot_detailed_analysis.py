@@ -8,8 +8,14 @@ from os.path import isfile, join
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-DATA_ID = "902132017"   # A Uniform sample
+DATA_ID = "17552432017"   # A Uniform sample
 #DATA_ID = "8592132017"  # A Normal sample
+
+#Plotting parameters
+MBUFFSIZE = -1    #plot specific buffer size simulation
+SAVE_TOF = True     #save produced plots to file
+FILE_EXTENSION = '.png'     #plot file extension (.png, .pdf, .svg)
+SHOW_GRAPH = False
 
 def readAnalysisFile(file_in):
     """ Input filename to read, return list with [VBuffersize], [MBuffer Size (C) - ms], [MBuffer Size (F) - ms], [MBuffer - frames], [MBuffer - status]"""
@@ -100,8 +106,9 @@ for entry in valid_files:
             continue
     fileObjects.append(tmp)
 
-#read data
-plotData( -1, True, '.pdf', False)
+
+#plot data
+plotData( MBUFFSIZE, SAVE_TOF, FILE_EXTENSION, SHOW_GRAPH)
 
     
    
