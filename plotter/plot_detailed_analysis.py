@@ -66,7 +66,7 @@ def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf', ShowGraph =
         print(ax1.get_ybound())
         plt.suptitle('BUFFER STATES - MBUFF:'+str(entry['MBuff'])+' DSTR:'+entry['Distr']+' DEP:'+str(entry['Depented']))
         if SaveTofile:
-            plt.savefig(OUT_DIR+'/'+'MBuff'+str(entry['MBuff'])+entry['Distr']+('_D' if entry['Depented'] else '')+Extension)
+            plt.savefig(OUT_DIR+'/'+DATA_ID+'_MBuff'+str(entry['MBuff'])+'_'+entry['Distr']+('_D' if entry['Depented'] else '')+Extension)
         if ShowGraph:
             plt.show()
         #input("Press Enter to continue...")
