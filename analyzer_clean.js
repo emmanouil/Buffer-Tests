@@ -315,11 +315,14 @@ function check_delays() {
 
 /*----- SPECIFIC FUNCTIONS ---*/
 /**
+ * Reads the files from the list and performs analysis on the elements (dataset)
+ * @param {obj} obj_in object to store results
+ * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
  * 
  */
-function performAnalysis(obj_in){
+function performAnalysis(obj_in, type) {
     //var ONorm = {files: '', fileslength:'', results: []};
-    obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + 'NORMAL.txt'));
+    obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
     obj_in.fileslength = obj_in.files.length;
 
     for (var i_t = 0; i_t < obj_in.fileslength; i_t++) {
@@ -332,14 +335,14 @@ function performAnalysis(obj_in){
 /**
  * Parses the contents from the object returned from performAnalysis and writes to file
  * @param {obj} obj_in object containing results
- * @param {String} type distribution type
+ * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
  * @returns {obj} containing fields written to file
  */
-function resultsToFile(obj_in, type){
+function resultsToFile(obj_in, type) {
     //var ONorm = {files: '', fileslength:'', results: []};
     var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
     var t;
-    if(type == 'NORMAL'){ t = 'N' }else if(type=='UNIFORM'){t='U'}
+    if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
     for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
         res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'Duration': 0 };
     }
