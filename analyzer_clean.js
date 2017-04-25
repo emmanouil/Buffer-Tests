@@ -329,6 +329,47 @@ function performAnalysis(obj_in){
     }
 }
 
+/**
+ * Parses the contents from the object returned from performAnalysis and writes to file
+ * @param {obj} obj_in object containing results
+ * @param {String} type distribution type
+ * @returns {obj} containing fields written to file
+ */
+function resultsToFile(obj_in, type){
+    //var ONorm = {files: '', fileslength:'', results: []};
+    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
+    var t;
+    if(type == 'NORMAL'){ t = 'N' }else if(type=='UNIFORM'){t='U'}
+    for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
+        res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'Duration': 0 };
+    }
+
+    //Object.assign({},res_to_file_n);
+    var runs = 0;
+    obj_in.results.forEach(function (element, index, array) {
+        runs++;
+        for (var i_i = 0; i_i < element.length; i_i++) {
+            var a = element[i_i];
+            var tmp_index = tl.findIndexByProperty(res_to_file, 'Mbuffsize', a.Mbuffsize);
+            if (tmp_index > 0) {
+                res_to_file[tmp_index].Events += a.Events;
+                res_to_file[tmp_index].Frames += a.Frames;
+                res_to_file[tmp_index].Duration += a.Duration;
+            } else {
+                console.log('[ERROR] not found');
+            }
+        }
+    });
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t R.Duration \n');
+    res_to_file.forEach(function (elem, index, array) {
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\n');
+    });
+    console.log(' runs ' + runs);
+    return res_to_file;
+}
+
+
+
 /*----------- HELPER -----------*/
 /**
  * Return the frame with the respective frame no. <frn>
