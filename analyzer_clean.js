@@ -313,6 +313,22 @@ function check_delays() {
     }
 }
 
+/*----- SPECIFIC FUNCTIONS ---*/
+/**
+ * 
+ */
+function performAnalysis(obj_in){
+    //var ONorm = {files: '', fileslength:'', results: []};
+    obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + 'NORMAL.txt'));
+    obj_in.fileslength = obj_in.files.length;
+
+    for (var i_t = 0; i_t < obj_in.fileslength; i_t++) {
+        var result = do_analysis(obj_in.files[i_t].File);
+        //        result.Type = 'NORMAL';
+        obj_in.results.push(result);
+    }
+}
+
 /*----------- HELPER -----------*/
 /**
  * Return the frame with the respective frame no. <frn>
