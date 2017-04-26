@@ -6,10 +6,10 @@ var tl = require("./tools.js");
 const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'video_out.vid';
 //const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
-const META_IN_FILE = 'meta_out_min200_max3200_distrUNIFORM_freq30_0.json'
+const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
+const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 
 //constants
@@ -19,7 +19,7 @@ const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
-const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
+const META_BUFFER_PLAY_THRESHOLD_MAX = 200; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
 const TEST_DURATION = 40000; //in ms
 
@@ -95,7 +95,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff_status');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff[0]FRN+1 \t MBuff_status');
             }
 
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -109,7 +109,7 @@ function do_analysis(file_in) {
             var Mbuff_size = 0;
             var Mbuff_changed = false;
             var m_index = 0;
-            var m_next_FRN = 0;
+            var m_next_FRN = 0; //next FRN of meta-frame to be played
             var current_mframe = dela_Tarr_ordered[m_index];
             var current_mbuff_status = 'NEW';
 
@@ -164,17 +164,18 @@ function do_analysis(file_in) {
                         }
 
                         var b_index = 0;
-                        while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
-                            Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
+                        while ((b_index < Mbuff.length) && (m_next_FRN == Mbuff[0].FRN) && (dela_list[d_index].FRN == Mbuff[b_index].FRN)) {
+                            Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN
                             b_index++;
                             d_index++;
                         }
                     }
                 }
 
+                //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
                 //if next frame number is not as expected, discard calculated buffer size
                 if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
-                    Mbuff_size = 0;
+                    Mbuff_size = -1;
                 }
 
                 Mbuff_changed = false;
@@ -231,7 +232,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) + '\t' + Mbuff.length + '\t' + current_mbuff_status);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + current_mbuff_status);
                 }
 
 
