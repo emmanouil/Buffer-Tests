@@ -17,7 +17,7 @@ const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
-const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
+const META_BUFFER_PLAY_THRESHOLD_MAX = 200; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
 const TEST_DURATION = 40000; //in ms
 
@@ -150,7 +150,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff_status');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff[0]FRN \t MBuff_status');
             }
 
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -218,7 +218,7 @@ function do_analysis(file_in) {
 
                         var b_index = 0;
                         if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
-                            Mbuff_size = 0;
+                            Mbuff_size = -1;
                         }else{
                             while ((b_index < Mbuff.length) && dela_list[d_index].FRN == Mbuff[b_index].FRN) {
                                 Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);
@@ -230,7 +230,7 @@ function do_analysis(file_in) {
                 }
 
                 if(Mbuff.length == 0){
-                    Mbuff_size = 0;
+                    Mbuff_size = -2;
                 }
 
                 Mbuff_changed = false;
@@ -286,7 +286,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + '.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) +'\t'+ Mbuff.length +'\t'+ current_mbuff_status);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) +'\t'+ Mbuff.length +'\t'+ ((typeof Mbuff[0] == 'undefined') ? 'UND' : Mbuff[0].FRN) + '\t' + current_mbuff_status);
                 }
 
 
