@@ -65,6 +65,7 @@ function do_analysis(file_in) {
     //bubble sort to delayed coords
     dela_ordered = dela.slice(0);
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
+    var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
 
 
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
@@ -95,7 +96,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer_frames \t MBuff[0]FRN+1 \t MBuff_status');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t MBuff_status');
             }
 
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -105,8 +106,9 @@ function do_analysis(file_in) {
             var current_vbuff_status = 'NEW';
 
             var Mbuff = [];
-            var Mbuff_f_size = 0;
-            var Mbuff_size = 0;
+            var Mbuff_f_duration = 0;
+            var Mbuff_c_duration = 0;
+            var Mbuff_c_size = 0;
             var Mbuff_changed = false;
             var m_index = 0;
             var m_next_FRN = 0; //next FRN of meta-frame to be played
@@ -151,7 +153,7 @@ function do_analysis(file_in) {
                 if (Mbuff_changed && Mbuff.length > 0) {
                     bubbleSortArrayByProperty(Mbuff, 'FRN');
                     //calculate fragmented buffer size
-                    Mbuff_f_size = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
+                    Mbuff_f_duration = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
 
                     //calculate non-fragmented buffer size
                     if (Mbuff.length > 1) {
@@ -164,8 +166,11 @@ function do_analysis(file_in) {
                         }
 
                         var b_index = 0;
+                        Mbuff_c_size = 0;
                         while ((b_index < Mbuff.length) && (m_next_FRN == Mbuff[0].FRN) && (dela_list[d_index].FRN == Mbuff[b_index].FRN)) {
-                            Mbuff_size = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN
+                            Mbuff_c_size++;
+//                            Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
+                            Mbuff_c_duration = Mbuff_c_size * frame_duration;
                             b_index++;
                             d_index++;
                         }
@@ -175,19 +180,19 @@ function do_analysis(file_in) {
                 //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
                 //if next frame number is not as expected, discard calculated buffer size
                 if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
-                    Mbuff_size = -1;
+                    Mbuff_c_duration = -1;
                 }
 
                 Mbuff_changed = false;
 
                 if (current_mbuff_status == 'NEW') {
                     m_i_frames++;
-                    if (mbuff_thres <= Mbuff_size) {   //check if we are on playback levels
+                    if (mbuff_thres <= Mbuff_c_duration) {   //check if we are on playback levels
                         current_mbuff_status = 'READY';
                         console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + Vbuff[0].T_display)
                     }
                 } else if (current_mbuff_status == 'PLAYING') {
-                    if (Mbuff.length == 0 || Mbuff_size == 0) {
+                    if (Mbuff.length == 0 || Mbuff_c_duration == 0) {
                         current_mbuff_status = 'BUFFERING';
                         m_r_events++;
                         m_r_frames++;
@@ -195,7 +200,7 @@ function do_analysis(file_in) {
                     }
                 } else if (current_mbuff_status == 'BUFFERING') {
                     m_r_frames++;
-                    if (Mbuff_size > 0 && Mbuff.length > 0) {
+                    if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
                         current_mbuff_status = 'READY';
                         console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + Vbuff[0].T_display)
                     }
@@ -232,7 +237,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_size.toFixed(2) + '\t' + Mbuff_f_size.toFixed(2) + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + current_mbuff_status);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + current_mbuff_status);
                 }
 
 
