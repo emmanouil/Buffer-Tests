@@ -13,17 +13,17 @@ DATA_ID = "17552432017"   # A Uniform sample
 
 #Plotting parameters
 MBUFFSIZE = -1    #plot specific buffer size simulation
-SAVE_TOF = True     #save produced plots to file
+SAVE_TOF = False     #save produced plots to file
 FILE_EXTENSION = '.png'     #plot file extension (.png, .pdf, .svg)
-SHOW_GRAPH = False
+SHOW_GRAPH = True
 
 def readAnalysisFile(file_in):
-    """ Input filename to read, return list with [VBuffersize], [MBuffer Size (C) - ms], [MBuffer Size (F) - ms], [MBuffer - frames], [MBuffer - status]"""
+    """ Input filename to read, return list with [T] [VBuffersize], [MBuffer Size (C) - ms], [MBuffer Size (F) - ms], [MBuffer (C) - frames], [MBuffer (F) - frames], [Mbuffer[0].FRN] [MBuffer - status]"""
     T = []  #time
-    VBS = []  #Vbuffer size
-    MBSC = [] #Mbuffer size
-    MBSF = [] #Mbuffer size fragmented
-    MBF = [] #Mbuffer size in frames
+    VBD = []  #Vbuffer duration (in ms)
+    MBCD = [] #Mbuffer CONTINUOUS duration (in ms)
+    MBFD = [] #Mbuffer FRAGMENTED duration (in ms)
+    MBCS = [] #Mbuffer CONTINUOUS size (in frames)
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -33,16 +33,16 @@ def readAnalysisFile(file_in):
                 continue
             if(i>0):
                 T.append(float(row[0]))
-                VBS.append(float(row[1]))
-                MBSC.append(float(row[2]))
-                MBSF.append(float(row[3]))
-                MBF.append(int(row[4]))
+                VBD.append(float(row[1]))
+                MBCD.append(float(row[2]))
+                MBFD.append(float(row[3]))
+                MBCS.append(int(row[4]))
             i+=1
         results.append(T)
-        results.append(VBS)
-        results.append(MBSC)
-        results.append(MBSF)
-        results.append(MBF)
+        results.append(VBD)
+        results.append(MBCD)
+        results.append(MBFD)
+        results.append(MBCS)
         return results
 
 def plotData(MBuffSize = -1, SaveTofile = False, Extension = '.pdf', ShowGraph = True):
