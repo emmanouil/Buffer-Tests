@@ -160,7 +160,7 @@ function do_analysis(file_in) {
                     if (Mbuff.length > 1) {
                         var d_index = 0;
                         for (var i_c = 0; i_c < dela_list.length; i_c++) {
-                            if (dela_list[i_c].FRN == Mbuff[0].FRN) {
+                            if (dela_list[i_c].FRN == m_next_FRN) {
                                 d_index = i_c;
                                 break;
                             }
