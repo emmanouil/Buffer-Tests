@@ -3,7 +3,17 @@
 
 ## TODO
 
-TODO
+### Technical
+
+ * Log Initial vs. Total rebuff
+ * Results __both__ in csv (for human read) and JSON for ease of parsing
+ * Fix continuous buffer size issue (testfile: `912732017_FIXED_UNIFORM_Mbuff_100_Vbuff1000` )
+   * Initial should work -> when [0].FRN = 0  &&  next.FRN = 0
+   * Check case -> when [i].FRN = _p_ + 3  &&  next.FRN = _p_
+
+### Analysis
+
+ * Emphasize on deltas that can be considered RT
 
 
 ## Files
