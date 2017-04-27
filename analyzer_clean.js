@@ -10,6 +10,7 @@ const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
 const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
 const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
+const RES_TO_JSON = true;   //test function to output to json
 
 
 //constants
@@ -28,8 +29,8 @@ var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
 if (!SINGLE_FILE) {
-    var ONorm = {files: '', fileslength:'', results: []};
-    var OUni = {files: '', fileslength:'', results: []};
+    var ONorm = { files: '', fileslength: '', results: [] };
+    var OUni = { files: '', fileslength: '', results: [] };
     performAnalysis(ONorm, 'NORMAL');
     performAnalysis(OUni, 'UNIFORM');
 
@@ -96,7 +97,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t MBuff_status');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t MBuff_status');
             }
 
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -169,7 +170,7 @@ function do_analysis(file_in) {
                         Mbuff_c_size = 0;
                         while ((b_index < Mbuff.length) && (m_next_FRN == Mbuff[0].FRN) && (dela_list[d_index].FRN == Mbuff[b_index].FRN)) {
                             Mbuff_c_size++;
-//                            Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
+                            //                            Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
                             Mbuff_c_duration = Mbuff_c_size * frame_duration;
                             b_index++;
                             d_index++;
@@ -236,7 +237,7 @@ function do_analysis(file_in) {
 
 
                 if (DETAILED_ANALYSIS) {
-                    tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT? 'D':'')+'.txt',
+                    tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt',
                         '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + current_mbuff_status);
                 }
 
@@ -292,7 +293,7 @@ function performAnalysis(obj_in, type) {
  */
 function resultsToFile(obj_in, type) {
     //var ONorm = {files: '', fileslength:'', results: []};
-    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames':0, 'Duration': 0 }];
+    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0 }];
     var t;
     if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
     for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
@@ -316,6 +317,9 @@ function resultsToFile(obj_in, type) {
             }
         }
     });
+    if(RES_TO_JSON){
+        tl.appendJSON(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', obj_in);
+    }
     tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \n');
     res_to_file.forEach(function (elem, index, array) {
         tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\n');
