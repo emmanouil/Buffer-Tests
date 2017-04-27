@@ -181,7 +181,7 @@ function do_analysis(file_in) {
                 //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
                 //if next frame number is not as expected, discard calculated buffer size
                 if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
-                    Mbuff_c_duration = -1;
+                    Mbuff_c_duration = 0;
                 }
 
                 Mbuff_changed = false;
