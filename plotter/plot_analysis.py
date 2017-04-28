@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import sys
+from operator import add
 
 
 
@@ -91,6 +92,11 @@ toDrawU = readAnalysisFile(analysis_file_in_u)
 plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Size (s)', 'Avg. Rebuff Events', )
 #Draw Rebuff Frames / Mbuff size
 plotData(toDrawN[0], toDrawN[2], toDrawU[0], toDrawU[2], 'Buffer Size (s)', 'Avg. Rebuff Frames')
+#Draw Init Rebuff Frames / Mbuff size
+plotData(toDrawN[0], toDrawN[3], toDrawU[0], toDrawU[3], 'Buffer Size (s)', 'Avg. Init Rebuff Frames')
+#Draw Total Rebuff Frames / Mbuff size
+plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(map(add, toDrawU[2], toDrawU[3])), 'Buffer Size (s)', 'Avg. Total Rebuff Frames')
+
 
 
 #EXIT POINT
