@@ -9,8 +9,8 @@ import sys
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "16571232017_N_analysis_200.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "16571232017_U_analysis_200.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "1052832017_N_analysis_400.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "1052832017_U_analysis_400.txt"  # Uniform Distribution
 
 
 #HOLDERS
@@ -25,11 +25,12 @@ RebuffDuration = []
 #FUNCTIONS
 
 def readAnalysisFile(file_in):
-    """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Duration]"""
+    """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Init], [Rebuff Duration]"""
     BS = []  #buffer size
-    RBE = [] #rebuffer events
-    RBF = [] #rebuffer frames
-    RBD = [] #rebuffer duration
+    RBE = [] #rebuff events
+    RBF = [] #rebuff frames
+    RBFI = [] #rebuff frames (initial)
+    RBD = [] #rebuff duration
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -41,11 +42,13 @@ def readAnalysisFile(file_in):
                 BS.append(int(row[0]))
                 RBE.append(float(row[1]))
                 RBF.append(float(row[2]))
-                RBD.append(float(row[3]))
+                RBFI.append(float(row[3]))
+                RBD.append(float(row[4]))
             i+=1
         results.append(BS)
         results.append(RBE)
         results.append(RBF)
+        results.append(RBFI)
         results.append(RBD)
         return results
 
