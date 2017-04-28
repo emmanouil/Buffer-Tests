@@ -6,11 +6,10 @@ var tl = require("./tools.js");
 const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'video_out.vid';
 //const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
-const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
+const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_30.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
-const RES_TO_JSON = false;   //test function to output to json
+const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 
 //constants
@@ -97,7 +96,7 @@ function do_analysis(file_in) {
             bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
             if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t MBuff_status');
+                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
             }
 
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
@@ -113,6 +112,7 @@ function do_analysis(file_in) {
             var Mbuff_changed = false;
             var m_index = 0;
             var m_next_FRN = 0; //next FRN of meta-frame to be played
+            var v_next_FRN = 0; //next FRN of vid-frame to be played
             var current_mframe = dela_Tarr_ordered[m_index];
             var current_mbuff_status = 'NEW';
 
@@ -225,7 +225,7 @@ function do_analysis(file_in) {
                 //removed qeued element
                 if (current_vbuff_status == 'PLAYING') {
                     if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
-                        Vbuff.shift();
+                        v_next_FRN = Vbuff.shift().FRN + 1;
                     }
                 }
                 if (current_mbuff_status == 'PLAYING') {
@@ -238,7 +238,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + current_mbuff_status);
+                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + (v_next_FRN) + '\t' + current_mbuff_status);
                 }
 
 
@@ -318,9 +318,6 @@ function resultsToFile(obj_in, type) {
             }
         }
     });
-    if(RES_TO_JSON){
-        tl.appendJSON(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', obj_in);
-    }
     tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize\n');
     res_to_file.forEach(function (elem, index, array) {
         tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\n');
