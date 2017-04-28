@@ -10,8 +10,8 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "1052832017_N_analysis_400.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "1052832017_U_analysis_400.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "10502832017_N_analysis_400.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "10502832017_U_analysis_400.txt"  # Uniform Distribution
 
 
 #HOLDERS
@@ -32,6 +32,7 @@ def readAnalysisFile(file_in):
     RBF = [] #rebuff frames
     RBFI = [] #rebuff frames (initial)
     RBD = [] #rebuff duration
+    BES = [] #buffer end size
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -45,12 +46,14 @@ def readAnalysisFile(file_in):
                 RBF.append(float(row[2]))
                 RBFI.append(float(row[3]))
                 RBD.append(float(row[4]))
+                BES.append(float(row[5]))
             i+=1
         results.append(BS)
         results.append(RBE)
         results.append(RBF)
         results.append(RBFI)
         results.append(RBD)
+        results.append(BES)
         return results
 
 def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Extension='.pdf', ShowGraph=True):
@@ -97,6 +100,8 @@ plotData(toDrawN[0], toDrawN[3], toDrawU[0], toDrawU[3], 'Buffer Size (s)', 'Avg
 #Draw Total Rebuff Frames / Mbuff size
 plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(map(add, toDrawU[2], toDrawU[3])), 'Buffer Size (s)', 'Avg. Total Rebuff Frames')
 
+#Draw Buffer End Size / Mbuff size
+plotData(toDrawN[0], toDrawN[5], toDrawU[0], toDrawU[5], 'Buffer Size (ms)', 'Avg. Buffer End Size (Frames)')
 
 
 #EXIT POINT
