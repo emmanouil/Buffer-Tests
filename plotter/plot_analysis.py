@@ -92,16 +92,15 @@ toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
 
 #Draw Rebuff Events / Mbuff size
-plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Size (s)', 'Avg. Rebuff Events', )
+plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Playback Threshold (ms)', 'Avg. Rebuff Events', )
 #Draw Rebuff Frames / Mbuff size
-plotData(toDrawN[0], toDrawN[2], toDrawU[0], toDrawU[2], 'Buffer Size (s)', 'Avg. Rebuff Frames')
+plotData(toDrawN[0], toDrawN[2], toDrawU[0], toDrawU[2], 'Buffer Playback Threshold (ms)', 'Avg. Rebuff Frames')
 #Draw Init Rebuff Frames / Mbuff size
-plotData(toDrawN[0], toDrawN[3], toDrawU[0], toDrawU[3], 'Buffer Size (s)', 'Avg. Init Rebuff Frames')
+plotData(toDrawN[0], toDrawN[3], toDrawU[0], toDrawU[3], 'Buffer Playback Threshold (ms)', 'Avg. Init Rebuff Frames')
 #Draw Total Rebuff Frames / Mbuff size
-plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(map(add, toDrawU[2], toDrawU[3])), 'Buffer Size (s)', 'Avg. Total Rebuff Frames')
-
+plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(map(add, toDrawU[2], toDrawU[3])), 'Buffer Playback Threshold (ms)', 'Avg. Total Rebuff Frames')
 #Draw Buffer End Size / Mbuff size
-plotData(toDrawN[0], toDrawN[5], toDrawU[0], toDrawU[5], 'Buffer Size (ms)', 'Avg. Buffer End Size (Frames)')
+plotData(toDrawN[0], toDrawN[5], toDrawU[0], toDrawU[5], 'Buffer Playback Threshold (ms)', 'Avg. Buffer End Size (Frames)')
 
 
 #EXIT POINT
