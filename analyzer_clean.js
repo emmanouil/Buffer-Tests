@@ -8,9 +8,8 @@ const VIDEO_IN_FILE = 'video_out.vid';
 //const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_30.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = true;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
-const DETAILED_ANALYSIS = true; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
-
+const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
+const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
 const DEPENDENT = false;
@@ -71,6 +70,7 @@ function do_analysis(file_in) {
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
         for (var vbuff_thres = VIDEO_BUFFER_PLAY_THRESHOLD_MIN; vbuff_thres <= VIDEO_BUFFER_PLAY_THRESHOLD_MAX; vbuff_thres += VIDEO_BUFFER_PLAY_THRESHOLD_STEP) {
             var m_r_events = 0, m_r_duration = 0, m_r_frames = 0, m_i_frames = 0;
+            var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
             //for resetting queues
             var dela_list = [];
 
@@ -121,6 +121,8 @@ function do_analysis(file_in) {
             for (var v_i = 0; v_i < video_ordered.length; v_i++) {   //iterate vframes
 
                 if (TEST_DURATION < (current_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
+                    //we do not calculate it sincei it is equal to m_r_duration
+                    //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
                     break;
                 }
                 //first do the vframes
@@ -216,9 +218,16 @@ function do_analysis(file_in) {
                 //check both buffers if ready for playback
                 if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
                     current_vbuff_status = 'PLAYING';
+                    if( v_t_play == 0){
+                        v_t_play = current_vframe.T_display;
+                }
                 }
                 if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
                     if (Mbuff[0].T_display <= Vbuff[0].T_display) {
+                        if( m_t_play == 0){
+                            m_t_play = current_vframe.T_display;
+                            init_t_diff = m_t_play - v_t_play;
+                        }
                         current_mbuff_status = 'PLAYING';
                         Mbuff_changed = true;
                     }
