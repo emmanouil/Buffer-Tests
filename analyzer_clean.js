@@ -111,6 +111,8 @@ function do_analysis(file_in) {
             var Mbuff_c_size = 0;
             var Mbuff_changed = false;
             var m_index = 0;
+            var m_curr_Frame = {};
+            var v_curr_Frame = {};
             var m_next_FRN = 0; //next FRN of meta-frame to be played
             var v_next_FRN = 0; //next FRN of vid-frame to be played
             var current_mframe = dela_Tarr_ordered[m_index];
@@ -225,11 +227,13 @@ function do_analysis(file_in) {
                 //removed qeued element
                 if (current_vbuff_status == 'PLAYING') {
                     if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
-                        v_next_FRN = Vbuff.shift().FRN + 1;
+                        v_curr_Frame = Vbuff.shift();
+                        v_next_FRN = v_curr_Frame.FRN + 1;
                     }
                 }
                 if (current_mbuff_status == 'PLAYING') {
-                    m_next_FRN = Mbuff.shift().FRN + 1;
+                    m_curr_Frame = Mbuff.shift();
+                    m_next_FRN = m_curr_Frame.FRN + 1;
                     Mbuff_changed = true;
                 }
 
