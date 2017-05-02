@@ -34,6 +34,7 @@ def readAnalysisFile(file_in):
     RBD = [] #rebuff duration
     BES = [] #buffer end size
     IPT = [] #initial playback time
+    FRT = [] #firsti rebuffer time
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -49,6 +50,7 @@ def readAnalysisFile(file_in):
                 RBD.append(float(row[4]))
                 BES.append(float(row[5]))
                 IPT.append(float(row[6]))
+                FRT.append(float(row[7]))
             i+=1
         results.append(BS)
         results.append(RBE)
@@ -57,6 +59,7 @@ def readAnalysisFile(file_in):
         results.append(RBD)
         results.append(BES)
         results.append(IPT)
+        results.append(FRT)
         return results
 
 def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Extension='.pdf', ShowGraph=True):
@@ -106,6 +109,8 @@ plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(ma
 plotData(toDrawN[0], toDrawN[5], toDrawU[0], toDrawU[5], 'Buffer Playback Threshold (ms)', 'Avg. Buffer End Size (Frames)')
 #Draw Initial Playback Time / Mbuff size
 plotData(toDrawN[0], toDrawN[6], toDrawU[0], toDrawU[6], 'Buffer Playback Threshold (ms)', 'Avg. Initial Playback Time (ms)')
+##Draw Initial Playback Time / Mbuff size
+#plotData(toDrawN[0], toDrawN[7], toDrawU[0], toDrawU[7], 'Buffer Playback Threshold (ms)', 'Avg. First Rebuff Time (ms)')
 
 
 #EXIT POINT
