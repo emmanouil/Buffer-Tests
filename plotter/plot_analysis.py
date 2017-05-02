@@ -94,15 +94,15 @@ def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = SAVE_TO_FILE
         plt.show()
 
 
-def plotTimes(tInitN, tInitU, tBuffN, tBuffU, xAxis, SaveToFile = SAVE_TO_FILE, Extension = FILE_EXTENSION, ShowGraph = SHOW_GRAPHS):
+def plotTimes(tInitN, cl1, tInitU, cl2, tBuffN, cl3, tBuffU, cl4, xAxis, xLabel, yLabel, a1l, a2l, b1l , b2l, SaveToFile = SAVE_TO_FILE, Extension = FILE_EXTENSION, ShowGraph = SHOW_GRAPHS):
     wd = 30
-    Xlabel = 'Buffer Playback Threshold (ms)'
-    Ylabel = 'Avg. Buffering Duration (ms)'
+    Xlabel = xLabel
+    Ylabel = yLabel
     fig, ax = plt.subplots()
-    p1 = plt.bar(xAxis, tInitN, wd, color='red', label='Initial Buffering N')
-    p2 = plt.bar(xAxis, tBuffN, wd, color='orange', label='Rebuffering N')
-    p3 = plt.bar([x+wd+4 for x in xAxis], tInitU, wd, color='b', label='Initial Buffering U')
-    p4 = plt.bar([x+wd+4 for x in xAxis], tBuffU, wd, color='c', label='Rebuffering U')
+    p1 = plt.bar(xAxis, tInitN, wd, color=cl1, label=a1l)
+    p2 = plt.bar(xAxis, tBuffN, wd, color=cl2, label=a2l)
+    p3 = plt.bar([x+wd+4 for x in xAxis], tInitU, wd, color=cl3, label=b1l)
+    p4 = plt.bar([x+wd+4 for x in xAxis], tBuffU, wd, color=cl4, label=b2l)
     plt.xlabel(Xlabel)
     plt.ylabel(Ylabel)
     ax.grid(axis='y')
@@ -126,7 +126,9 @@ toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
 
 #Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
-plotTimes(toDrawN[6], toDrawU[6], toDrawN[4], toDrawU[4], toDrawN[0])
+plotTimes(toDrawN[6], 'red', toDrawU[6], 'orange', toDrawN[4], 'b', toDrawU[4], 'c', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Buffering Duration (ms)','Initial Buffering N', 'Rebuffering N', 'Initial Buffering U', 'Rebuffering U')
+#Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
+plotTimes(list(map(add, toDrawN[6], toDrawN[4])), 'orange', list(map(add, toDrawU[6], toDrawU[4])), 'red', toDrawN[6], 'c', toDrawU[6], 'b', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Total Buffering Duration (ms)','Total Buffering N', 'Initial Buffering N', 'Total Buffering U', 'Initial Buffering U')
 #wait = input("PRESS ENTER TO CONTINUE.")
 
 
