@@ -37,7 +37,7 @@ const TWO_PI = 2*PI;
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
 tl.writeJSON(DIR_OUT+'/'+V_FILENAME, video_out+FILE_EXTENTION);
 var datas = [];
-for(var t_n =0; t_n<200; t_n++){
+for(var t_n =0; t_n<400; t_n++){
     var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
     tl.writeJSON(DIR_OUT+'/'+M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+'_'+t_n+FILE_EXTENTION, meta_out);
     var data_out = {

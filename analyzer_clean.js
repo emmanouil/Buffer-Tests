@@ -72,6 +72,7 @@ function do_analysis(file_in) {
             var m_r_events = 0, m_r_duration = 0, m_r_frames = 0, m_i_frames = 0;
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
             var m_r_first = 0;
+            var per_in_sync = 0;
             //for resetting queues
             var dela_list = [];
 
@@ -261,8 +262,14 @@ function do_analysis(file_in) {
 
             }
             //            tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
+            if(m_r_first == 0){
+                per_in_sync = 1.0;
+            }else{
+                var clean_duration = (40000 - m_t_play); 
+                per_in_sync = (m_r_first - m_t_play) / clean_duration;
+            }
 
-            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': m_r_events, 'Frames': m_r_frames, 'IFrames': m_i_frames, 'Duration': m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': m_r_first });
+            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': m_r_events, 'Frames': m_r_frames, 'IFrames': m_i_frames, 'Duration': m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': m_r_first, 'TimeInSync': per_in_sync });
         }
     }
     return analysis_results;
@@ -310,11 +317,11 @@ function performAnalysis(obj_in, type) {
  */
 function resultsToFile(obj_in, type) {
     //var ONorm = {files: '', fileslength:'', results: []};
-    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0 }];
+    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0 }];
     var t;
     if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
     for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
-        res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0 };
+        res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0 };
     }
 
     //Object.assign({},res_to_file_n);
@@ -332,14 +339,15 @@ function resultsToFile(obj_in, type) {
                 res_to_file[tmp_index].EndSize += a.EndSize;
                 res_to_file[tmp_index].StartT += a.StartT;
                 res_to_file[tmp_index].FirstRT += a.FirstRT;
+                res_to_file[tmp_index].TimeInSync += a.TimeInSync;
             } else {
                 console.log('[ERROR] not found');
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \n');
     res_to_file.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\n');
     });
     console.log(' runs ' + runs);
     return res_to_file;

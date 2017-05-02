@@ -8,8 +8,8 @@ from os.path import isfile, join
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-DATA_ID = "17552432017"   # A Uniform sample
-#DATA_ID = "8592132017"  # A Normal sample
+#DATA_ID = "17552432017"   # A Uniform sample
+DATA_ID = "15322832017"  # A Normal sample
 
 #Plotting parameters
 MBUFFSIZE = -1    #plot specific buffer size simulation
