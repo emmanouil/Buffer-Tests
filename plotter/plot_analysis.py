@@ -13,6 +13,11 @@ OUT_DIR = "plots"
 ANALYSIS_SUM_FILE_N = "1030242017_N_analysis_400.txt"  # Normal Distribution
 ANALYSIS_SUM_FILE_U = "1030242017_U_analysis_400.txt"  # Uniform Distribution
 
+#OUTPUT
+SAVE_TO_FILE = True
+FILE_EXTENSION = '.png'
+SHOW_PLOTS = False
+
 
 #HOLDERS
 
@@ -26,7 +31,7 @@ RebuffDuration = []
 #FUNCTIONS
 
 def readAnalysisFile(file_in):
-    """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Init], [Rebuff Duration]"""
+    """ Input filename to read, return list with [Buffersize], [Rebuff Events], [Rebuff Frames], [Rebuff Init], [Rebuff Duration], EndSize, StartT, FirstRT, TimeInSync"""
     BS = []  #buffer size
     RBE = [] #rebuff events
     RBF = [] #rebuff frames
@@ -65,7 +70,7 @@ def readAnalysisFile(file_in):
         results.append(TISR)
         return results
 
-def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Extension='.pdf', ShowGraph=True):
+def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SAVE_TO_FILE, FILE_EXTENSION, SHOW_PLOTS):
     ticksXmajor = np.arange(100, int(Xuni[len(Xuni)-1]), 200)
     ticksXminor = np.arange(0, int(Xuni[len(Xuni)-1]), 200)
     fig1, ax1 = plt.subplots()
