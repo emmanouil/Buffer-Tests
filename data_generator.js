@@ -20,6 +20,7 @@ const V_STREAM_ID = 'VID';
 const M_FILENAME = 'meta_out';
 const M_FREQ = 30;
 const M_FRAMERATE = 1 / M_FREQ;
+const M_N_OF_SAMPLES = 500; //Number of samples to be generated
 const M_DELAY_DISTR = 'NORMAL';    //NONE, UNIFORM, NORMAL
 const M_DELAY_MIN = 200;    //(in ms)
 const M_DELAY_MAX = 3200;    //(in ms)
@@ -37,7 +38,7 @@ const TWO_PI = 2*PI;
 var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
 tl.writeJSON(DIR_OUT+'/'+V_FILENAME, video_out+FILE_EXTENTION);
 var datas = [];
-for(var t_n =0; t_n<400; t_n++){
+for(var t_n =0; t_n<M_N_OF_SAMPLES; t_n++){
     var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
     tl.writeJSON(DIR_OUT+'/'+M_FILENAME+'_min'+M_DELAY_MIN+'_max'+M_DELAY_MAX+'_distr'+M_DELAY_DISTR+'_freq'+M_FREQ+'_'+t_n+FILE_EXTENTION, meta_out);
     var data_out = {
