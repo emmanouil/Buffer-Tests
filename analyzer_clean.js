@@ -134,17 +134,17 @@ function do_analysis(file_in) {
                 if (current_vbuff_status == 'NEW') {
                     if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
                         current_vbuff_status = 'READY';
-                        console.log("VIDEO READY")
+                        console.log("VIDEO READY @ "+current_vframe.T_display);
                     }
                 } else if (current_vbuff_status == 'PLAYING') {
                     if (Vbuff.length == 0) {
                         current_vbuff_status = 'BUFFERING';
-                        console.log("VIDEO BUFFERING")
+                        console.log("VIDEO BUFFERING");
                     }
                 } else if (current_vbuff_status == 'BUFFERING') {
                     if (Vbuff.length > 0) {
                         current_vbuff_status = 'READY';
-                        console.log("VIDEO READY @ "+current_vframe.T_display)
+                        console.log("VIDEO READY @ "+current_vframe.T_display);
                     }
                 }
 
