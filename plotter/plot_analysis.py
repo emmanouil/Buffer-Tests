@@ -10,13 +10,13 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "1030242017_N_analysis_400.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "1030242017_U_analysis_400.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "1121242017_N_analysis_400.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "1121242017_U_analysis_400.txt"  # Uniform Distribution
 
 #OUTPUT
 SAVE_TO_FILE = True
 FILE_EXTENSION = '.png'
-SHOW_PLOTS = False
+SHOW_GRAPHS = False
 
 
 #HOLDERS
@@ -70,7 +70,7 @@ def readAnalysisFile(file_in):
         results.append(TISR)
         return results
 
-def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SAVE_TO_FILE, FILE_EXTENSION, SHOW_PLOTS):
+def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = SAVE_TO_FILE, Extension = FILE_EXTENSION, ShowGraph = SHOW_GRAPHS):
     ticksXmajor = np.arange(100, int(Xuni[len(Xuni)-1]), 200)
     ticksXminor = np.arange(0, int(Xuni[len(Xuni)-1]), 200)
     fig1, ax1 = plt.subplots()
@@ -94,7 +94,27 @@ def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SAVE_TO_FILE, FILE_EXTENS
         plt.show()
 
 
-
+def plotTimes(tInitN, tInitU, tBuffN, tBuffU, xAxis, SaveToFile = SAVE_TO_FILE, Extension = FILE_EXTENSION, ShowGraph = SHOW_GRAPHS):
+    wd = 30
+    Xlabel = 'Buffer Playback Threshold (ms)'
+    Ylabel = 'Avg. Buffering Duration (ms)'
+    fig, ax = plt.subplots()
+    p1 = plt.bar(xAxis, tInitN, wd, color='blue', label='Rebuffering N')
+    p2 = plt.bar(xAxis, tBuffN, wd, color='red', label='Initial Buffering N')
+    p3 = plt.bar([x+wd+4 for x in xAxis], tInitU, wd, color='c', label='Rebuffering U')
+    p4 = plt.bar([x+wd+4 for x in xAxis], tBuffU, wd, color='m', label='Initial Buffering U')
+    plt.xlabel(Xlabel)
+    plt.ylabel(Ylabel)
+    ax.grid(axis='y')
+    ax.grid(axis='y', which='minor', alpha=0.3, linestyle=':')
+    ax.grid(axis='y', which='major', alpha=0.7, linestyle='--')
+    legend = ax.legend(loc='upper left', shadow=False, fontsize='9')
+    if SAVE_TO_FILE:
+        extracts = [c for c in ANALYSIS_SUM_FILE_N.split('_')]
+        filename=extracts[0]+'_MBuff_'+extracts[len(extracts)-1].split('.')[0]+'__'+Ylabel.replace(" ", "").replace(".", "")
+        plt.savefig(OUT_DIR+'/'+filename+Extension)
+    if ShowGraph:
+        plt.show()
 
 
 #ENTRY POINT
@@ -104,6 +124,10 @@ analysis_file_in_n = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_N)
 analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
 toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
+
+#Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
+plotTimes(toDrawN[6], toDrawU[6], toDrawN[4], toDrawU[4], toDrawN[0])
+#wait = input("PRESS ENTER TO CONTINUE.")
 
 #Draw Rebuff Events / Mbuff size
 plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Playback Threshold (ms)', 'Avg. Rebuff Events', )
