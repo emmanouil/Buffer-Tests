@@ -12,7 +12,8 @@ const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
-const DEPENDENT = false;
+const DEPENDENT = true;
+const DEPENDENT_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow when dependent playback (Video waits, or Meta drops frames)
 const DISTRIBUTION = 'NORMAL';
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
@@ -143,7 +144,7 @@ function do_analysis(file_in) {
                 } else if (current_vbuff_status == 'BUFFERING') {
                     if (Vbuff.length > 0) {
                         current_vbuff_status = 'READY';
-                        console.log("VIDEO READY")
+                        console.log("VIDEO READY @ "+current_vframe.T_display)
                     }
                 }
 
@@ -196,7 +197,7 @@ function do_analysis(file_in) {
                     m_i_frames++;
                     if (mbuff_thres <= Mbuff_c_duration) {   //check if we are on playback levels
                         current_mbuff_status = 'READY';
-                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + Vbuff[0].T_display)
+                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + current_vframe.T_display)
                     }
                 } else if (current_mbuff_status == 'PLAYING') {
                     if (Mbuff.length == 0 || Mbuff_c_duration == 0) {
@@ -212,7 +213,7 @@ function do_analysis(file_in) {
                     m_r_frames++;
                     if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
                         current_mbuff_status = 'READY';
-                        console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + Vbuff[0].T_display)
+                        console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + current_vframe.T_display)
                     }
                 }
                 if (current_mbuff_status == 'BUFFERING') {
