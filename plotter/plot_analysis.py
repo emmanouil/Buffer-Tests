@@ -10,8 +10,8 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "10502832017_N_analysis_400.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "10502832017_U_analysis_400.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "108242017_N_analysis_400.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "108242017_U_analysis_400.txt"  # Uniform Distribution
 
 
 #HOLDERS
@@ -33,6 +33,7 @@ def readAnalysisFile(file_in):
     RBFI = [] #rebuff frames (initial)
     RBD = [] #rebuff duration
     BES = [] #buffer end size
+    IPT = [] #initial playback time
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -47,6 +48,7 @@ def readAnalysisFile(file_in):
                 RBFI.append(float(row[3]))
                 RBD.append(float(row[4]))
                 BES.append(float(row[5]))
+                IPT.append(float(row[6]))
             i+=1
         results.append(BS)
         results.append(RBE)
@@ -54,6 +56,7 @@ def readAnalysisFile(file_in):
         results.append(RBFI)
         results.append(RBD)
         results.append(BES)
+        results.append(IPT)
         return results
 
 def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = False, Extension='.pdf', ShowGraph=True):
@@ -101,6 +104,8 @@ plotData(toDrawN[0], toDrawN[3], toDrawU[0], toDrawU[3], 'Buffer Playback Thresh
 plotData(toDrawN[0], list(map(add, toDrawN[2], toDrawN[3])), toDrawU[0], list(map(add, toDrawU[2], toDrawU[3])), 'Buffer Playback Threshold (ms)', 'Avg. Total Rebuff Frames')
 #Draw Buffer End Size / Mbuff size
 plotData(toDrawN[0], toDrawN[5], toDrawU[0], toDrawU[5], 'Buffer Playback Threshold (ms)', 'Avg. Buffer End Size (Frames)')
+#Draw Initial Playback Time / Mbuff size
+plotData(toDrawN[0], toDrawN[6], toDrawU[0], toDrawU[6], 'Buffer Playback Threshold (ms)', 'Avg. Initial Playback Time (ms)')
 
 
 #EXIT POINT
