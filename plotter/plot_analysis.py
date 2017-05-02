@@ -99,10 +99,10 @@ def plotTimes(tInitN, tInitU, tBuffN, tBuffU, xAxis, SaveToFile = SAVE_TO_FILE, 
     Xlabel = 'Buffer Playback Threshold (ms)'
     Ylabel = 'Avg. Buffering Duration (ms)'
     fig, ax = plt.subplots()
-    p1 = plt.bar(xAxis, tInitN, wd, color='blue', label='Rebuffering N')
-    p2 = plt.bar(xAxis, tBuffN, wd, color='red', label='Initial Buffering N')
-    p3 = plt.bar([x+wd+4 for x in xAxis], tInitU, wd, color='c', label='Rebuffering U')
-    p4 = plt.bar([x+wd+4 for x in xAxis], tBuffU, wd, color='m', label='Initial Buffering U')
+    p1 = plt.bar(xAxis, tInitN, wd, color='red', label='Initial Buffering N')
+    p2 = plt.bar(xAxis, tBuffN, wd, color='orange', label='Rebuffering N')
+    p3 = plt.bar([x+wd+4 for x in xAxis], tInitU, wd, color='b', label='Initial Buffering U')
+    p4 = plt.bar([x+wd+4 for x in xAxis], tBuffU, wd, color='c', label='Rebuffering U')
     plt.xlabel(Xlabel)
     plt.ylabel(Ylabel)
     ax.grid(axis='y')
@@ -128,6 +128,7 @@ toDrawU = readAnalysisFile(analysis_file_in_u)
 #Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
 plotTimes(toDrawN[6], toDrawU[6], toDrawN[4], toDrawU[4], toDrawN[0])
 #wait = input("PRESS ENTER TO CONTINUE.")
+
 
 #Draw Rebuff Events / Mbuff size
 plotData(toDrawN[0], toDrawN[1], toDrawU[0], toDrawU[1], 'Buffer Playback Threshold (ms)', 'Avg. Rebuff Events', )
