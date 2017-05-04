@@ -253,6 +253,25 @@ function do_analysis(file_in) {
                 }
 
 
+                if (Mbuff.length > 0) {
+
+                    var Dmean = -1;
+
+                    if(Mbuff[0].FRN != m_next_FRN){
+                        Dmean = -2
+                    }else{
+                        var dd =0;
+                        for(var i =1; i<Mbuff.length; i++){
+                            var element = Mbuff[i];
+                            if(element.FRN == Mbuff[i-1].FRN+1){
+                                dd += element.T_arrival - element.T_display;
+                            }else{
+                                Dmean = dd/i;
+                                break;
+                            }
+                        }
+                    }
+                }
 
 
                 if (DETAILED_ANALYSIS) {
