@@ -10,13 +10,13 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "1121242017_N_analysis_400.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "1121242017_U_analysis_400.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "1645242017_N_analysis_500.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "1645242017_U_analysis_500.txt"  # Uniform Distribution
 
 #OUTPUT
-SAVE_TO_FILE = True
+SAVE_TO_FILE = False
 FILE_EXTENSION = '.png'
-SHOW_GRAPHS = False
+SHOW_GRAPHS = True
 
 
 #HOLDERS
