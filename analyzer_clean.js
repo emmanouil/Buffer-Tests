@@ -253,6 +253,21 @@ function do_analysis(file_in) {
                 }
 
 
+if (Mbuff.length > 0) {
+                //DELAY ESTIMATION
+                //1. FRN-agnostic
+                if (Mbuff.length > 0) {
+                    var Dmean = -1;
+                    var dd = 0;
+                    Mbuff.forEach(function (element) {
+                        dd += element.T_arrival - element.T_display;
+                    }, this);
+                    Dmean = dd/Mbuff.length;
+                    console.log('DM 1 : '+Dmean)
+                }
+                //2. FRN-aware
+                //Not used - Less accurate
+                /*
                 if (Mbuff.length > 0) {
 
                     var Dmean = -1;
