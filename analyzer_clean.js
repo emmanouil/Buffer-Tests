@@ -21,7 +21,7 @@ const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
-const TEST_DURATION = 80000; //in ms
+const TEST_DURATION = 40000; //in ms
 
 
 var date = new Date();
@@ -144,8 +144,10 @@ function do_analysis(file_in) {
                 /**
                  * Check arriving vframes and VBuff status
                  */
-                current_vframe = video_ordered[v_i];    //select current vframe
-                Vbuff.push(video_ordered[v_i]);     //push current vframe in Vbuffer
+                //select current vframe
+                current_vframe = video_ordered[v_i];
+                //push current vframe in Vbuffer    
+                Vbuff.push(video_ordered[v_i]);    
                 if (current_vbuff_status == 'NEW') {
                     if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
                         current_vbuff_status = 'READY';
@@ -286,7 +288,7 @@ function do_analysis(file_in) {
                             D_min_observed = D_min_observed < elemD ? D_min_observed : elemD;
                         }, this);
                         D_mean_buffer = dd / Mbuff.length;
-                        console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
+                        //console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
                     }
                     //2. FRN-aware
                     //Not used - Less accurate
