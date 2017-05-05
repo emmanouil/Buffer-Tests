@@ -76,6 +76,7 @@ function do_analysis(file_in) {
             var per_in_sync = 0;
             //for resetting queues
             var dela_list = [];
+            var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
 
             for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
                 var elem = dela_ordered[i_a];
@@ -253,42 +254,44 @@ function do_analysis(file_in) {
                 }
 
 
-if (Mbuff.length > 0) {
-                //DELAY ESTIMATION
-                //1. FRN-agnostic
+                //MEAN, MIN, MAX - DELAY ESTIMATION
                 if (Mbuff.length > 0) {
-                    var Dmean = -1;
-                    var dd = 0;
-                    Mbuff.forEach(function (element) {
-                        dd += element.T_arrival - element.T_display;
-                    }, this);
-                    Dmean = dd/Mbuff.length;
-                    console.log('DM 1 : '+Dmean)
-                }
-                //2. FRN-aware
-                //Not used - Less accurate
-                /*
-                if (Mbuff.length > 0) {
-
-                    var Dmean = -1;
-
-                    if(Mbuff[0].FRN != m_next_FRN){
-                        Dmean = -2
-                    }else{
-                        var dd =0;
-                        for(var i =1; i<Mbuff.length; i++){
-                            var element = Mbuff[i];
-                            if(element.FRN == Mbuff[i-1].FRN+1){
-                                dd += element.T_arrival - element.T_display;
-                            }else{
-                                Dmean = dd/i;
-                                break;
+                    //1. FRN-agnostic
+                    if (Mbuff.length > 0) {
+                        var dd = 0;
+                        Mbuff.forEach(function (element) {
+                            var elemD = element.T_arrival - element.T_display;
+                            dd += elemD;
+                            D_max_observed = D_max_observed > elemD ? D_max_observed : elemD;
+                            D_min_observed = D_min_observed < elemD ? D_min_observed : elemD;
+                        }, this);
+                        D_mean_buffer = dd / Mbuff.length;
+                        console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
+                    }
+                    //2. FRN-aware
+                    //Not used - Less accurate
+                    /*
+                    if (Mbuff.length > 0) {
+    
+                        var Dmean = -1;
+    
+                        if(Mbuff[0].FRN != m_next_FRN){
+                            Dmean = -2
+                        }else{
+                            var dd =0;
+                            for(var i =1; i<Mbuff.length; i++){
+                                var element = Mbuff[i];
+                                if(element.FRN == Mbuff[i-1].FRN+1){
+                                    dd += element.T_arrival - element.T_display;
+                                }else{
+                                    Dmean = dd/i;
+                                    break;
+                                }
                             }
                         }
                     }
+                    */
                 }
-                */
-}
 
 
 
