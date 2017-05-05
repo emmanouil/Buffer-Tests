@@ -67,9 +67,16 @@ function do_analysis(file_in) {
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
     var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
 
-
+    /**
+     * ENTRY POINT OF THE SIMULATION
+     */
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
         for (var vbuff_thres = VIDEO_BUFFER_PLAY_THRESHOLD_MIN; vbuff_thres <= VIDEO_BUFFER_PLAY_THRESHOLD_MAX; vbuff_thres += VIDEO_BUFFER_PLAY_THRESHOLD_STEP) {
+
+            /**
+             * Setup simulation environment for specific sample file
+             */
+
             var m_r_events = 0, m_r_duration = 0, m_r_frames = 0, m_i_frames = 0;
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
             var m_r_first = 0;
@@ -122,14 +129,21 @@ function do_analysis(file_in) {
             var current_mframe = dela_Tarr_ordered[m_index];
             var current_mbuff_status = 'NEW';
 
-            for (var v_i = 0; v_i < video_ordered.length; v_i++) {   //iterate vframes
+            /**
+             * Actual simulation start - by iterating through vframes
+             */
+
+            for (var v_i = 0; v_i < video_ordered.length; v_i++) {
 
                 if (TEST_DURATION < (current_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
                     //we do not calculate it sincei it is equal to m_r_duration
                     //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
                     break;
                 }
-                //first do the vframes
+
+                /**
+                 * Check arriving vframes and VBuff status
+                 */
                 current_vframe = video_ordered[v_i];    //select current vframe
                 Vbuff.push(video_ordered[v_i]);     //push current vframe in Vbuffer
                 if (current_vbuff_status == 'NEW') {
@@ -150,7 +164,9 @@ function do_analysis(file_in) {
                 }
 
 
-                //then the metaframes
+                /**
+                 * Check arriving mframes and MBuff status
+                 */
                 current_mframe = dela_Tarr_ordered[m_index];    //select current mframe
                 while (current_mframe.T_arrival <= current_vframe.T_display) {    //push current mframe in MBuffer
                     Mbuff.push(current_mframe);
@@ -214,7 +230,7 @@ function do_analysis(file_in) {
                     m_r_frames++;
                     if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
                         current_mbuff_status = 'READY';
-                        console.log(DISTRIBUTION + mbuff_thres + " META PLAYING @ " + current_vframe.T_display)
+                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + current_vframe.T_display)
                     }
                 }
                 if (current_mbuff_status == 'BUFFERING') {
@@ -222,7 +238,9 @@ function do_analysis(file_in) {
                 }
 
 
-                //check both buffers if ready for playback
+                /**
+                 * Check if updated buffers (both) should start playback
+                 */
                 if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
                     current_vbuff_status = 'PLAYING';
                     if (v_t_play == 0) {
@@ -254,7 +272,9 @@ function do_analysis(file_in) {
                 }
 
 
-                //MEAN, MIN, MAX - DELAY ESTIMATION
+                /**
+                 * mean, min, man - delay estimations (from Mbuffer)
+                 */
                 if (Mbuff.length > 0) {
                     //1. FRN-agnostic
                     if (Mbuff.length > 0) {
@@ -317,6 +337,10 @@ function do_analysis(file_in) {
 
 }
 
+
+
+
+
 /*-- helper analysis functions --*/
 function check_delays() {
     minObservedDelay = maxObservedDelay = first_dela_frame.Delay;
@@ -330,6 +354,8 @@ function check_delays() {
         }
     }
 }
+
+
 
 /*----- SPECIFIC FUNCTIONS ---*/
 /**
