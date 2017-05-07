@@ -4,7 +4,7 @@ var tl = require("./tools.js");
 
 //file-out setup
 const NODE_OUT_PATH = 'node_out/';
-const VIDEO_IN_FILE = 'video_out.vid';
+const VIDEO_IN_FILE = 'generated/video_out.json';
 //const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
 const META_IN_FILE = 'meta_out_min200_max3200_distrUNIFORM_freq30_30.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
@@ -147,7 +147,7 @@ function do_analysis(file_in) {
                 //select current vframe
                 current_vframe = video_ordered[v_i];
                 //push current vframe in Vbuffer    
-                Vbuff.push(video_ordered[v_i]);    
+                Vbuff.push(video_ordered[v_i]);
                 if (current_vbuff_status == 'NEW') {
                     if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
                         current_vbuff_status = 'READY';
