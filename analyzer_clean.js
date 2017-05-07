@@ -148,22 +148,8 @@ function do_analysis(file_in) {
                 current_vframe = video_ordered[v_i];
                 //push current vframe in Vbuffer    
                 Vbuff.push(video_ordered[v_i]);
-                if (current_vbuff_status == 'NEW') {
-                    if (vbuff_thres <= (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display)) {   //check if we are on playback levels
-                        current_vbuff_status = 'READY';
-                        console.log("VIDEO READY @ " + current_vframe.T_display);
-                    }
-                } else if (current_vbuff_status == 'PLAYING') {
-                    if (Vbuff.length == 0) {
-                        current_vbuff_status = 'BUFFERING';
-                        console.log("VIDEO BUFFERING");
-                    }
-                } else if (current_vbuff_status == 'BUFFERING') {
-                    if (Vbuff.length > 0) {
-                        current_vbuff_status = 'READY';
-                        console.log("VIDEO READY @ " + current_vframe.T_display);
-                    }
-                }
+                //set buffer status ('NEW', 'READY', 'BUFFERING')
+                current_vbuff_status = calculateVBuffStatus(current_vbuff_status, current_vframe, Vbuff, vbuff_thres);
 
 
                 /**
@@ -422,6 +408,40 @@ function resultsToFile(obj_in, type) {
     return res_to_file;
 }
 
+/**
+ * Calculates status of the video buffer ('NEW', 'READY', 'BUFFERING')
+ * @param {String} current_vbuff_status current status of video buffer
+ * @param {obj} current_vframe most recently "received" video frame (and pushed in the buffer)
+ * @param {obj} VBuff the whole video buffer object as is when function is called
+ * @param {int} vbuff_thres initial playback threshold of video stream (to compare with buffer)
+ * @returns {String} status of the video buffer ('NEW', 'READY', 'BUFFERING')
+ */
+function calculateVBuffStatus(current_vbuff_status, current_vframe, VBuff, vbuff_thres) {
+
+    var cvs = current_vbuff_status;
+    var cvf = current_vframe;
+    var vbf = VBuff;
+    var vbt = vbuff_thres;
+
+    if (cvs == 'NEW') {
+        if (vbt <= (vbf[vbf.length - 1].T_display - vbf[0].T_display)) {   //check if we are on playback levels
+            cvs = 'READY';
+            console.log("VIDEO READY @ " + cvf.T_display);
+        }
+    } else if (cvs == 'PLAYING') {
+        if (vbf.length == 0) {
+            cvs = 'BUFFERING';
+            console.log("VIDEO BUFFERING");
+        }
+    } else if (cvs == 'BUFFERING') {
+        if (vbf.length > 0) {
+            cvs = 'READY';
+            console.log("VIDEO READY @ " + cvf.T_display);
+        }
+    }
+    return cvs;
+
+}
 
 
 /*----------- HELPER -----------*/
