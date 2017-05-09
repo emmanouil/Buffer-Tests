@@ -14,8 +14,8 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 //constants
 const DEPENDENT = false;
 const DELAYED_START = false;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
-const DEPENDENT_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow when dependent playback (Video waits, or Meta drops frames)
-const DISTRIBUTION = 'NORMAL';
+const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
+const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
@@ -472,7 +472,7 @@ function calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_
         METRICS_M.m_i_frames++;
         if (mbuff_thres <= Mbuff_c_duration) {   //check if we are on playback levels
             cms = 'READY';
-            console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + incoming_vframe.T_display)
+            console.log(mbuff_thres + " META READY @ " + incoming_vframe.T_display)
         }
     } else if (cms == 'PLAYING') {
         if (Mbuff.length == 0 || Mbuff_c_duration == 0) {
@@ -488,7 +488,7 @@ function calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_
         METRICS_M.m_r_frames++;
         if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
             cms = 'READY';
-            console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + incoming_vframe.T_display)
+            console.log(mbuff_thres + " META READY @ " + incoming_vframe.T_display)
         }
     }
     if (cms == 'BUFFERING') {
