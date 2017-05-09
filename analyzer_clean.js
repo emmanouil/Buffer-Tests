@@ -78,9 +78,8 @@ function do_analysis(file_in) {
              * Setup simulation environment for specific sample file
              */
 
-            var m_r_events = 0, m_r_duration = 0, m_r_frames = 0, m_i_frames = 0;
+            var METRICS_M = { m_r_events : 0, m_r_duration : 0, m_r_frames : 0, m_i_frames : 0, m_r_first: 0};
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
-            var m_r_first = 0;
             var per_in_sync = 0;
             //for resetting queues
             var dela_list = [];
@@ -302,14 +301,14 @@ function do_analysis(file_in) {
 
             }
             //            tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
-            if (m_r_first == 0) {
+            if (METRICS_M.m_r_first == 0) {
                 per_in_sync = 1.0;
             } else {
                 var clean_duration = (TEST_DURATION - m_t_play);
-                per_in_sync = (m_r_first - m_t_play) / clean_duration;
+                per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
             }
 
-            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': m_r_events, 'Frames': m_r_frames, 'IFrames': m_i_frames, 'Duration': m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': m_r_first, 'TimeInSync': per_in_sync });
+            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync });
         }
     }
     return analysis_results;
