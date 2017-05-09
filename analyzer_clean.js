@@ -13,6 +13,7 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 
 //constants
 const DEPENDENT = false;
+const DELAYED_START = false;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
 const DEPENDENT_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow when dependent playback (Video waits, or Meta drops frames)
 const DISTRIBUTION = 'NORMAL';
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
@@ -78,7 +79,7 @@ function do_analysis(file_in) {
              * Setup simulation environment for specific sample file
              */
 
-            var METRICS_M = { m_r_events : 0, m_r_duration : 0, m_r_frames : 0, m_i_frames : 0, m_r_first: 0};
+            var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 };
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
             var per_in_sync = 0;
             //for resetting queues
@@ -142,6 +143,7 @@ function do_analysis(file_in) {
                 }
 
 
+
                 /**
                  * Check arriving vframes and VBuff status
                  */
@@ -151,6 +153,7 @@ function do_analysis(file_in) {
                 Vbuff.push(video_ordered[v_i]);
                 //set buffer status ('NEW', 'READY', 'BUFFERING')
                 current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, vbuff_thres);
+
 
 
                 /**
@@ -178,7 +181,6 @@ function do_analysis(file_in) {
                     }
                 }
 
-
                 //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
                 //if next frame number is not as expected, discard calculated buffer size
                 if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
@@ -188,7 +190,7 @@ function do_analysis(file_in) {
 
                 Mbuff_changed = false;
 
-
+                //set buffer status ('NEW', 'READY', 'BUFFERING')
                 current_mbuff_status = calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i);
 
 
@@ -210,6 +212,12 @@ function do_analysis(file_in) {
                         }
                         current_mbuff_status = 'PLAYING';
                         Mbuff_changed = true;
+                    }
+                }
+
+                if (DELAYED_START) {
+                    if ((current_vbuff_status == 'READY' || current_vbuff_status == 'PLAYING') && current_mbuff_status != 'PLAYING' && Vbuff[0].FRN == 0) {
+                        current_vbuff_status = 'READY';
                     }
                 }
 
