@@ -29,6 +29,14 @@ const TEST_DURATION = 40000; //in ms
 var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
+//Check simulation parameters
+if ((SINGLE_FILE && !(DETAILED_ANALYSIS)) ||
+    (DEPENDENT && DELAYED_START) ||
+    ((!SINGLE_FILE) && DETAILED_ANALYSIS)) {
+    console.error("CHECK SIMULATION PARAMETERS - ABORTING EXECUTION");
+    process.exit();
+}
+
 if (!SINGLE_FILE) {
     var ONorm = { files: '', fileslength: '', results: [] };
     var OUni = { files: '', fileslength: '', results: [] };
