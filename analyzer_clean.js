@@ -21,6 +21,7 @@ const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
+
 const TEST_DURATION = 40000; //in ms
 
 
@@ -113,7 +114,7 @@ function do_analysis(file_in) {
             var T_zero = video_ordered[0].T_display;    //first vframe timestamp
             var T_end = T_zero + TEST_DURATION;
             var Vbuff = [];
-            var current_vframe = video_ordered[0];
+            var incoming_vframe = video_ordered[0];
             var current_vbuff_status = 'NEW';
 
             var Mbuff = [];
@@ -126,7 +127,7 @@ function do_analysis(file_in) {
             var v_curr_Frame = {};
             var m_next_FRN = 0; //next FRN of meta-frame to be played
             var v_next_FRN = 0; //next FRN of vid-frame to be played
-            var current_mframe = dela_Tarr_ordered[m_index];
+            var incoming_mframe = dela_Tarr_ordered[m_index];
             var current_mbuff_status = 'NEW';
 
             /**
@@ -135,7 +136,7 @@ function do_analysis(file_in) {
 
             for (var v_i = 0; v_i < video_ordered.length; v_i++) {
 
-                if (TEST_DURATION < (current_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
+                if (TEST_DURATION < (incoming_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
                     //we do not calculate it sincei it is equal to m_r_duration
                     //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
                     break;
@@ -145,21 +146,21 @@ function do_analysis(file_in) {
                  * Check arriving vframes and VBuff status
                  */
                 //select current vframe
-                current_vframe = video_ordered[v_i];
+                incoming_vframe = video_ordered[v_i];
                 //push current vframe in Vbuffer    
                 Vbuff.push(video_ordered[v_i]);
                 //set buffer status ('NEW', 'READY', 'BUFFERING')
-                current_vbuff_status = calculateVBuffStatus(current_vbuff_status, current_vframe, Vbuff, vbuff_thres);
+                current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, vbuff_thres);
 
 
                 /**
                  * Check arriving mframes and MBuff status
                  */
-                current_mframe = dela_Tarr_ordered[m_index];    //select current mframe
-                while (current_mframe.T_arrival <= current_vframe.T_display) {    //push current mframe in MBuffer
-                    Mbuff.push(current_mframe);
+                incoming_mframe = dela_Tarr_ordered[m_index];    //select current mframe
+                while (incoming_mframe.T_arrival <= incoming_vframe.T_display) {    //push current mframe in MBuffer
+                    Mbuff.push(incoming_mframe);
                     m_index++;
-                    current_mframe = dela_Tarr_ordered[m_index];
+                    incoming_mframe = dela_Tarr_ordered[m_index];
                     Mbuff_changed = true;
                 }
 
@@ -202,13 +203,13 @@ function do_analysis(file_in) {
                     m_i_frames++;
                     if (mbuff_thres <= Mbuff_c_duration) {   //check if we are on playback levels
                         current_mbuff_status = 'READY';
-                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + current_vframe.T_display)
+                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + incoming_vframe.T_display)
                     }
                 } else if (current_mbuff_status == 'PLAYING') {
                     if (Mbuff.length == 0 || Mbuff_c_duration == 0) {
                         current_mbuff_status = 'BUFFERING';
                         if (m_r_first == 0) {
-                            m_r_first = current_vframe.T_display;
+                            m_r_first = incoming_vframe.T_display;
                         }
                         m_r_events++;
                         m_r_frames++;
@@ -218,7 +219,7 @@ function do_analysis(file_in) {
                     m_r_frames++;
                     if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
                         current_mbuff_status = 'READY';
-                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + current_vframe.T_display)
+                        console.log(DISTRIBUTION + mbuff_thres + " META READY @ " + incoming_vframe.T_display)
                     }
                 }
                 if (current_mbuff_status == 'BUFFERING') {
@@ -232,13 +233,13 @@ function do_analysis(file_in) {
                 if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
                     current_vbuff_status = 'PLAYING';
                     if (v_t_play == 0) {
-                        v_t_play = current_vframe.T_display;
+                        v_t_play = incoming_vframe.T_display;
                     }
                 }
                 if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
                     if (Mbuff[0].T_display <= Vbuff[0].T_display) {
                         if (m_t_play == 0) {
-                            m_t_play = current_vframe.T_display;
+                            m_t_play = incoming_vframe.T_display;
                             init_t_diff = m_t_play - v_t_play;
                         }
                         current_mbuff_status = 'PLAYING';
@@ -305,7 +306,7 @@ function do_analysis(file_in) {
 
                 if (DETAILED_ANALYSIS) {
                     tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt',
-                        '\n' + (current_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + (v_next_FRN) + '\t' + current_mbuff_status);
+                        '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + (v_next_FRN) + '\t' + current_mbuff_status);
                 }
 
 
@@ -411,15 +412,15 @@ function resultsToFile(obj_in, type) {
 /**
  * Calculates status of the video buffer ('NEW', 'READY', 'BUFFERING')
  * @param {String} current_vbuff_status current status of video buffer
- * @param {obj} current_vframe most recently "received" video frame (and pushed in the buffer)
+ * @param {obj} incoming_vframe most recently "received" video frame (and pushed in the buffer)
  * @param {obj} VBuff the whole video buffer object as is when function is called
  * @param {int} vbuff_thres initial playback threshold of video stream (to compare with buffer)
  * @returns {String} status of the video buffer ('NEW', 'READY', 'BUFFERING')
  */
-function calculateVBuffStatus(current_vbuff_status, current_vframe, VBuff, vbuff_thres) {
+function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuff_thres) {
 
     var cvs = current_vbuff_status;
-    var cvf = current_vframe;
+    var cvf = incoming_vframe;
     var vbf = VBuff;
     var vbt = vbuff_thres;
 
