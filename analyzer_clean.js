@@ -13,8 +13,9 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 
 //constants
 const DEPENDENT = false;
-const DELAYED_START = false;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
-const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
+const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
+//const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
+const DROP_FRAMES = false;
 const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
@@ -88,6 +89,7 @@ function do_analysis(file_in) {
              */
 
             var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 };
+            var dropped_mframes = 0, displayed_mframes = 0;
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
             var per_in_sync = 0;
             //for resetting queues
@@ -163,7 +165,6 @@ function do_analysis(file_in) {
                 current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, vbuff_thres);
 
 
-
                 /**
                  * Check arriving mframes and MBuff status
                  */
@@ -176,6 +177,18 @@ function do_analysis(file_in) {
                     incoming_mframe = dela_Tarr_ordered[m_index];
                     Mbuff_changed = true;
                 }
+
+
+                if (DROP_FRAMES && current_vbuff_status == 'PLAYING') {
+                    while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
+                        //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
+                        Mbuff.shift();
+                        dropped_mframes++;
+                        Mbuff_changed = true;
+                    }
+                }
+
+
                 //Re-sort MBuff
                 if (Mbuff_changed && Mbuff.length > 0) {
                     bubbleSortArrayByProperty(Mbuff, 'FRN');
@@ -240,8 +253,9 @@ function do_analysis(file_in) {
                     m_curr_Frame = Mbuff.shift();
                     m_next_FRN = m_curr_Frame.FRN + 1;
                     Mbuff_changed = true;
+                    //console.log('Displayed: '+ m_curr_Frame.FRN+'    for'+v_curr_Frame.FRN);
+                    displayed_mframes++;
                 }
-
 
                 /**
                  * mean, min, man - delay estimations (from Mbuffer)
@@ -301,7 +315,7 @@ function do_analysis(file_in) {
                 per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
             }
 
-            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync });
+            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
         }
     }
     return analysis_results;
@@ -355,11 +369,11 @@ function performAnalysis(obj_in, type) {
  */
 function resultsToFile(obj_in, type) {
     //var ONorm = {files: '', fileslength:'', results: []};
-    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0 }];
+    var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0, 'Displayed': 0, 'Dropped': 0 }];
     var t;
     if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
     for (var i_i = META_BUFFER_PLAY_THRESHOLD_MIN; i_i <= META_BUFFER_PLAY_THRESHOLD_MAX; i_i += META_BUFFER_PLAY_THRESHOLD_STEP) {
-        res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0 };
+        res_to_file[i_i / META_BUFFER_PLAY_THRESHOLD_STEP] = { 'Mbuffsize': i_i, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0, 'Displayed': 0, 'Dropped': 0 };
     }
 
     //Object.assign({},res_to_file_n);
@@ -378,14 +392,16 @@ function resultsToFile(obj_in, type) {
                 res_to_file[tmp_index].StartT += a.StartT;
                 res_to_file[tmp_index].FirstRT += a.FirstRT;
                 res_to_file[tmp_index].TimeInSync += a.TimeInSync;
+                res_to_file[tmp_index].Displayed += a.Displayed;
+                res_to_file[tmp_index].Dropped += a.Dropped;
             } else {
                 console.log('[ERROR] not found');
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP' : '') + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \t Displayed \t Dropped \n');
     res_to_file.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP' : '') + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\t' + (elem.Displayed / runs).toFixed(2) + '\t' + (elem.Dropped / runs).toFixed(2) + '\n');
     });
     console.log(' runs ' + runs);
     return res_to_file;
