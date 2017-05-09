@@ -10,8 +10,10 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "1645242017_N_analysis_500.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "1645242017_U_analysis_500.txt"  # Uniform Distribution
+#ANALYSIS_SUM_FILE_N = "1857942017_N_analysis_500.txt"  # Normal Distribution
+#ANALYSIS_SUM_FILE_U = "1857942017_U_analysis_500.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_U = "198942017_U_analysis_500_DROP.txt"  # Uniform Distribution w drops
+ANALYSIS_SUM_FILE_N = "198942017_N_analysis_500_DROP.txt"  # Normal Distribution w drops
 
 #OUTPUT
 SAVE_TO_FILE = False
@@ -26,7 +28,8 @@ RebuffEvents = []
 RebuffFrames = []
 RebuffDuration = []
 
-
+#AUTO-SET
+plotDrops = False
 
 #FUNCTIONS
 
@@ -41,6 +44,8 @@ def readAnalysisFile(file_in):
     IPT = [] #initial playback time
     FRT = [] #first rebuffer time
     TISR = [] #Time in Sync Ratio
+    DSPF = [] #Displayed Frames
+    DRPF = [] #Dropped Frames
     results = []
     with open(file_in, 'r') as f_in:
         data_in = csv.reader(f_in, delimiter='\t')
@@ -58,6 +63,8 @@ def readAnalysisFile(file_in):
                 IPT.append(float(row[6]))
                 FRT.append(float(row[7]))
                 TISR.append(float(row[8]))
+                DSPF.append(float(row[9]))
+                DRPF.append(float(row[10]))
             i+=1
         results.append(BS)
         results.append(RBE)
@@ -68,6 +75,8 @@ def readAnalysisFile(file_in):
         results.append(IPT)
         results.append(FRT)
         results.append(TISR)
+        results.append(DSPF)
+        results.append(DRPF)
         return results
 
 def plotData(Xnorm, Ynorm, Xuni, Yuni, Xlabel, Ylabel, SaveToFile = SAVE_TO_FILE, Extension = FILE_EXTENSION, ShowGraph = SHOW_GRAPHS):
@@ -120,10 +129,18 @@ def plotTimes(tInitN, cl1, tInitU, cl2, tBuffN, cl3, tBuffU, cl4, xAxis, xLabel,
 #ENTRY POINT
 
 #Get data from files
+if(ANALYSIS_SUM_FILE_N.find('DROP')>0):
+    plotDrops = True
+        
 analysis_file_in_n = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_N)
 analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
 toDrawN = readAnalysisFile(analysis_file_in_n)
 toDrawU = readAnalysisFile(analysis_file_in_u)
+
+if(plotDrops):
+    #Draw Stack Bar w/ Dropped  vs Displayed frames / Mbuff size
+    plotTimes(list(map(add, toDrawN[9], toDrawN[10])), 'orange', list(map(add, toDrawU[9], toDrawU[10])), 'red', toDrawN[9], 'c', toDrawU[9], 'b', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Total Frames Out (ms)','Total Frames N', 'Total Displayed N', 'Total Frames U', 'Total Displayed U')
+    
 
 #Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
 plotTimes(toDrawN[6], 'red', toDrawU[6], 'orange', toDrawN[4], 'b', toDrawU[4], 'c', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Buffering Duration (ms)','Initial Buffering N', 'Rebuffering N', 'Initial Buffering U', 'Rebuffering U')
