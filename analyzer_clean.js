@@ -15,7 +15,7 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 const DEPENDENT = false;
 const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
 //const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
-const DROP_FRAMES = false;
+const DROP_FRAMES = true;
 const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
@@ -185,6 +185,9 @@ function do_analysis(file_in) {
                         Mbuff.shift();
                         dropped_mframes++;
                         Mbuff_changed = true;
+                    }
+                    if (Vbuff[0].FRN != 0) {
+                        m_next_FRN = Vbuff[0].FRN;
                     }
                 }
 
