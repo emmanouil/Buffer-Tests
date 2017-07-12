@@ -49,9 +49,6 @@ if (!SINGLE_FILE) {
     var res_to_file_n = resultsToFile(ONorm, 'NORMAL');
     var res_to_file_u = resultsToFile(OUni, 'UNIFORM');
     console.log('done');
-
-
-    //tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
 } else {
     var results = do_analysis(META_IN_FILE);
 }
@@ -310,7 +307,7 @@ function do_analysis(file_in) {
 
 
             }
-            //            tl.append(NODE_OUT_PATH + RESULTS_FILE + '_analysis.txt', mbuff_thres + '\t' + m_r_events + '\t' + m_r_frames + '\t' + m_r_duration + '\n');
+
             if (METRICS_M.m_r_first == 0) {
                 per_in_sync = 1.0;
             } else {
@@ -353,13 +350,11 @@ function check_delays() {
  * 
  */
 function performAnalysis(obj_in, type) {
-    //var ONorm = {files: '', fileslength:'', results: []};
     obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
     obj_in.fileslength = obj_in.files.length;
 
     for (var i_t = 0; i_t < obj_in.fileslength; i_t++) {
         var result = do_analysis(obj_in.files[i_t].File);
-        //        result.Type = 'NORMAL';
         obj_in.results.push(result);
     }
 }
@@ -371,7 +366,6 @@ function performAnalysis(obj_in, type) {
  * @returns {obj} containing fields written to file
  */
 function resultsToFile(obj_in, type) {
-    //var ONorm = {files: '', fileslength:'', results: []};
     var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0, 'Displayed': 0, 'Dropped': 0 }];
     var t;
     if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
@@ -471,7 +465,7 @@ function calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size) {
         mbs = 0;
         while ((b_index < Mbuff.length) && (m_next_FRN == Mbuff[0].FRN) && (dela_list[d_index].FRN == Mbuff[b_index].FRN)) {
             mbs++;
-            //                            Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
+            //Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
             b_index++;
             d_index++;
         }
