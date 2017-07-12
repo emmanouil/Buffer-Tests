@@ -13,9 +13,9 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 
 //constants
 const DEPENDENT = false;
-const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback
+const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback //TODOk: test if it works as supposed to
 //const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
-const DROP_FRAMES = true;
+const DROP_FRAMES = false;  //TODOk: test this (does not seem to work)
 const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms

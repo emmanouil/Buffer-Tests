@@ -10,10 +10,10 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-#ANALYSIS_SUM_FILE_N = "1857942017_N_analysis_500.txt"  # Normal Distribution
-#ANALYSIS_SUM_FILE_U = "1857942017_U_analysis_500.txt"  # Uniform Distribution
-ANALYSIS_SUM_FILE_U = "14141042017_N_analysis_500_DROP_WAIT_FRN.txt"  # Uniform Distribution w drops
-ANALYSIS_SUM_FILE_N = "14141042017_U_analysis_500_DROP_WAIT_FRN.txt"  # Normal Distribution w drops
+ANALYSIS_SUM_FILE_N = "16191262017_N_analysis_500.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "16191262017_U_analysis_500.txt"  # Uniform Distribution
+#ANALYSIS_SUM_FILE_U = "14141042017_N_analysis_500_DROP_WAIT_FRN.txt"  # Uniform Distribution w drops
+#ANALYSIS_SUM_FILE_N = "14141042017_U_analysis_500_DROP_WAIT_FRN.txt"  # Normal Distribution w drops
 #ANALYSIS_SUM_FILE_U = "13541042017_U_analysis_500_DROP_FRN.txt"  # Uniform Distribution w drops
 #ANALYSIS_SUM_FILE_N = "13541042017_N_analysis_500_DROP_FRN.txt"  # Normal Distribution w drops
 
