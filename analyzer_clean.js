@@ -61,9 +61,6 @@ function do_analysis(file_in) {
 
     var analysis_results = [];
 
-    //set at check_delays()
-    var maxObservedDelay = 0, minObservedDelay = 99999;
-
     //other vars
     var proj = [], dela = [], dela_ordered = [], video_ordered = [];
 
@@ -323,25 +320,6 @@ function do_analysis(file_in) {
 }
 
 
-
-
-
-/*-- helper analysis functions --*/
-function check_delays() {
-    minObservedDelay = maxObservedDelay = first_dela_frame.Delay;
-    for (var i = 0; i < dela_ordered.length; i++) {
-        var local_delay = dela_ordered[i].Delay;
-        if (minObservedDelay > local_delay) {
-            minObservedDelay = local_delay;
-        }
-        if (maxObservedDelay < local_delay) {
-            maxObservedDelay = local_delay;
-        }
-    }
-}
-
-
-
 /*----- SPECIFIC FUNCTIONS ---*/
 /**
  * Reads the files from the list and performs analysis on the elements (dataset)
@@ -527,18 +505,7 @@ function calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_
 
 
 /*----------- HELPER -----------*/
-/**
- * Return the frame with the respective frame no. <frn>
- * @param {int} frn to look up in the delayed frames
- * @returns {Object} returns frame with <frn> number, null if frame not found
- */
-function findDelayedByFrameNo(frn) {
-    for (var i = 0; i < dela.length; i++) {
-        if (dela[i][4][1] == frn)
-            return dela[i];
-    }
-    return null;
-}
+
 /**
  * Sorts <array> according to <index>
  * @param {Array} array to be sorted
