@@ -1,3 +1,6 @@
+//TODOs (high levels)
+//check META READY @ vs VIDEO READY @ timing 
+
 //NEW NEW
 //imports
 var tl = require("./tools.js");
@@ -82,10 +85,10 @@ function do_analysis(file_in) {
              * Setup simulation environment for specific sample file
              */
 
-            var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 };
+            var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
             var dropped_mframes = 0, displayed_mframes = 0;
             var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
-            var per_in_sync = 0;
+            var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
             //for resetting queues
             var dela_list = [];
             var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
@@ -401,7 +404,6 @@ function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuf
         if (vbt <= (vbf[vbf.length - 1].T_display - vbf[0].T_display)) {   //check if we are on playback levels
             cvs = 'READY';
             console.log("VIDEO READY @ " + cvf.T_display);
-        }
     } else if (cvs == 'PLAYING') {
         if (vbf.length == 0) {
             cvs = 'BUFFERING';
@@ -411,7 +413,6 @@ function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuf
         if (vbf.length > 0) {
             cvs = 'READY';
             console.log("VIDEO READY @ " + cvf.T_display);
-        }
     }
     return cvs;
 
