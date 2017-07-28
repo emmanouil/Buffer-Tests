@@ -401,9 +401,11 @@ function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuf
     var vbt = vbuff_thres;
 
     if (cvs == 'NEW') {
+
         if (vbt <= (vbf[vbf.length - 1].T_display - vbf[0].T_display)) {   //check if we are on playback levels
             cvs = 'READY';
             console.log("VIDEO READY @ " + cvf.T_display);
+        }
     } else if (cvs == 'PLAYING') {
         if (vbf.length == 0) {
             cvs = 'BUFFERING';
@@ -413,6 +415,7 @@ function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuf
         if (vbf.length > 0) {
             cvs = 'READY';
             console.log("VIDEO READY @ " + cvf.T_display);
+        }
     }
     return cvs;
 
