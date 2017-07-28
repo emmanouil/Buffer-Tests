@@ -8,10 +8,7 @@ var tl = require("./tools.js");
 //file-out setup
 const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'generated/video_out.json';
-//const META_IN_FILE = 'meta_out_min200_max3200_distrNORMAL_freq30_0.json'
-const META_IN_FILE = 'meta_out_min200_max3200_distrUNIFORM_freq30_30.json'
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
-const SINGLE_FILE = false;  //if true run META_IN_FILE, else run al META_IN_FILE_LIST
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
@@ -19,7 +16,7 @@ const DEPENDENT = false;
 const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback //TODOk: test if it works as supposed to
 //const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
 const DROP_FRAMES = false;  //TODOk: test this (does not seem to work)
-const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
+//const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');   //single file not supported here - parsed from the META_IN_FILE_LIST during analysis
 const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
 const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
@@ -33,15 +30,7 @@ const TEST_DURATION = 40000; //in ms
 var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
-//Check simulation parameters
-if ((SINGLE_FILE && !(DETAILED_ANALYSIS)) ||
-    (DEPENDENT && DELAYED_START) ||
-    ((!SINGLE_FILE) && DETAILED_ANALYSIS)) {
-    console.error("CHECK SIMULATION PARAMETERS - ABORTING EXECUTION");
-    process.exit();
-}
 
-if (!SINGLE_FILE) {
     var ONorm = { files: '', fileslength: '', results: [] };
     var OUni = { files: '', fileslength: '', results: [] };
     performAnalysis(ONorm, 'NORMAL');
@@ -52,9 +41,6 @@ if (!SINGLE_FILE) {
     var res_to_file_n = resultsToFile(ONorm, 'NORMAL');
     var res_to_file_u = resultsToFile(OUni, 'UNIFORM');
     console.log('done');
-} else {
-    var results = do_analysis(META_IN_FILE);
-}
 
 console.log('All test DONE');
 
