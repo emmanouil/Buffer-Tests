@@ -17,21 +17,18 @@ const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for 
 //const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
 const DROP_FRAMES = false;  //TODOk: test this (does not seem to work)
 //const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');   //single file not supported here - parsed from the META_IN_FILE_LIST during analysis
-const VIDEO_BUFFER_PLAY_THRESHOLD_MIN = 1000; //in ms
-const VIDEO_BUFFER_PLAY_THRESHOLD_MAX = 1000; //in ms
-const VIDEO_BUFFER_PLAY_THRESHOLD_STEP = 500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
 
+const VIDEO_BUFFER_PLAY_THRES = 1000; //in ms
+
 const TEST_DURATION = 40000; //in ms
 
 
+//set filename
 var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
-
-
-
 
 
 
@@ -78,244 +75,242 @@ function do_analysis(file_in) {
      * ENTRY POINT OF THE SIMULATION
      */
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
-        for (var vbuff_thres = VIDEO_BUFFER_PLAY_THRESHOLD_MIN; vbuff_thres <= VIDEO_BUFFER_PLAY_THRESHOLD_MAX; vbuff_thres += VIDEO_BUFFER_PLAY_THRESHOLD_STEP) {
 
-            /**
-             * Setup simulation environment for specific sample file
-             */
+        /**
+         * Setup simulation environment for specific sample file
+         */
+        var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+        var dropped_mframes = 0, displayed_mframes = 0;
+        var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
+        var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
+        //for resetting queues
+        var dela_list = [];
+        var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
 
-            var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
-            var dropped_mframes = 0, displayed_mframes = 0;
-            var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
-            var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
-            //for resetting queues
-            var dela_list = [];
-            var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
+        for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
+            var elem = dela_ordered[i_a];
+            var item = {};
+            item.T_arrival = elem.T_arrival;
+            item.T_display = elem.T_display;
+            item.FRN = elem.FRN;
+            item.contents = -1; //empty
+            item.inBuffer = false;
+            if (i_a < dela_ordered.length - 1) {
+                item.TnextDiff = parseInt(dela_ordered[i_a + 1].T_display - item.T_display);
+                item.FRNnext = parseInt(dela_ordered[i_a + 1].FRN); //in case we have missing frames (i.e. non-consecutive FRNs)
+            } else {
+                item.TnextDiff = -1;
+                item.FRNnext = -1;
+            }
+            dela_list.push(item);
+        }
 
-            for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
-                var elem = dela_ordered[i_a];
-                var item = {};
-                item.T_arrival = elem.T_arrival;
-                item.T_display = elem.T_display;
-                item.FRN = elem.FRN;
-                item.contents = -1; //empty
-                item.inBuffer = false;
-                if (i_a < dela_ordered.length - 1) {
-                    item.TnextDiff = parseInt(dela_ordered[i_a + 1].T_display - item.T_display);
-                    item.FRNnext = parseInt(dela_ordered[i_a + 1].FRN); //in case we have missing frames (i.e. non-consecutive FRNs)
-                } else {
-                    item.TnextDiff = -1;
-                    item.FRNnext = -1;
-                }
-                dela_list.push(item);
+        var dela_Tarr_ordered = dela_list.slice(0);
+        bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
+
+        if (DETAILED_ANALYSIS) {
+            tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
+        }
+
+        var T_zero = video_ordered[0].T_display;    //first vframe timestamp
+        var T_end = T_zero + TEST_DURATION;
+        var Vbuff = [];
+        var incoming_vframe = video_ordered[0];
+        var current_vbuff_status = 'NEW';
+
+        var Mbuff = [];
+        var Mbuff_f_duration = 0;
+        var Mbuff_c_duration = 0;
+        var Mbuff_c_size = 0;
+        var Mbuff_changed = false;
+        var m_index = 0;
+        var m_curr_Frame = {};
+        var v_curr_Frame = {};
+        var m_next_FRN = 0; //next FRN of meta-frame to be played
+        var v_next_FRN = 0; //next FRN of vid-frame to be played
+        var incoming_mframe = dela_Tarr_ordered[m_index];
+        var current_mbuff_status = 'NEW';
+
+        /**
+         * Actual simulation start - by iterating through vframes
+         */
+
+        for (var v_i = 0; v_i < video_ordered.length; v_i++) {
+
+            if (TEST_DURATION < (incoming_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
+                //we do not calculate it sincei it is equal to m_r_duration
+                //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
+                break;
             }
 
-            var dela_Tarr_ordered = dela_list.slice(0);
-            bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
-            if (DETAILED_ANALYSIS) {
-                tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
-            }
-
-            var T_zero = video_ordered[0].T_display;    //first vframe timestamp
-            var T_end = T_zero + TEST_DURATION;
-            var Vbuff = [];
-            var incoming_vframe = video_ordered[0];
-            var current_vbuff_status = 'NEW';
-
-            var Mbuff = [];
-            var Mbuff_f_duration = 0;
-            var Mbuff_c_duration = 0;
-            var Mbuff_c_size = 0;
-            var Mbuff_changed = false;
-            var m_index = 0;
-            var m_curr_Frame = {};
-            var v_curr_Frame = {};
-            var m_next_FRN = 0; //next FRN of meta-frame to be played
-            var v_next_FRN = 0; //next FRN of vid-frame to be played
-            var incoming_mframe = dela_Tarr_ordered[m_index];
-            var current_mbuff_status = 'NEW';
 
             /**
-             * Actual simulation start - by iterating through vframes
+             * Check arriving vframes and VBuff status
              */
-
-            for (var v_i = 0; v_i < video_ordered.length; v_i++) {
-
-                if (TEST_DURATION < (incoming_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
-                    //we do not calculate it sincei it is equal to m_r_duration
-                    //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
-                    break;
-                }
+            //select current incoming vframe
+            incoming_vframe = video_ordered[v_i];
+            //push current incoming vframe in Vbuffer    
+            Vbuff.push(video_ordered[v_i]);
+            //set buffer status ('NEW', 'READY', 'BUFFERING')
+            current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, VIDEO_BUFFER_PLAY_THRES);
 
 
-
-                /**
-                 * Check arriving vframes and VBuff status
-                 */
-                //select current incoming vframe
-                incoming_vframe = video_ordered[v_i];
-                //push current incoming vframe in Vbuffer    
-                Vbuff.push(video_ordered[v_i]);
-                //set buffer status ('NEW', 'READY', 'BUFFERING')
-                current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, vbuff_thres);
-
-
-                /**
-                 * Check arriving mframes and MBuff status
-                 */
-                //select current incoming mframe
+            /**
+             * Check arriving mframes and MBuff status
+             */
+            //select current incoming mframe
+            incoming_mframe = dela_Tarr_ordered[m_index];
+            //push incoming mframes in MBuffer
+            while (incoming_mframe.T_arrival <= incoming_vframe.T_display) {
+                Mbuff.push(incoming_mframe);
+                m_index++;
                 incoming_mframe = dela_Tarr_ordered[m_index];
-                //push incoming mframes in MBuffer
-                while (incoming_mframe.T_arrival <= incoming_vframe.T_display) {
-                    Mbuff.push(incoming_mframe);
-                    m_index++;
-                    incoming_mframe = dela_Tarr_ordered[m_index];
+                Mbuff_changed = true;
+            }
+
+
+            if (DROP_FRAMES && current_vbuff_status == 'PLAYING') {
+                while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
+                    //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
+                    Mbuff.shift();
+                    dropped_mframes++;
                     Mbuff_changed = true;
                 }
-
-
-                if (DROP_FRAMES && current_vbuff_status == 'PLAYING') {
-                    while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
-                        //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
-                        Mbuff.shift();
-                        dropped_mframes++;
-                        Mbuff_changed = true;
-                    }
-                    if (Vbuff[0].FRN != 0) {
-                        m_next_FRN = Vbuff[0].FRN;
-                    }
+                if (Vbuff[0].FRN != 0) {
+                    m_next_FRN = Vbuff[0].FRN;
                 }
+            }
 
 
-                //Re-sort MBuff
-                if (Mbuff_changed && Mbuff.length > 0) {
-                    bubbleSortArrayByProperty(Mbuff, 'FRN');
-                    //calculate new fragment MBuff size
-                    Mbuff_f_duration = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
-                    if (Mbuff.length > 1) {
-                        //calculate new continuous MBuff size
-                        Mbuff_c_size = calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size);
-                        //calculate new continuous MBuff duration
-                        Mbuff_c_duration = Mbuff_c_size * frame_duration;
+            //Re-sort MBuff
+            if (Mbuff_changed && Mbuff.length > 0) {
+                bubbleSortArrayByProperty(Mbuff, 'FRN');
+                //calculate new fragment MBuff size
+                Mbuff_f_duration = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
+                if (Mbuff.length > 1) {
+                    //calculate new continuous MBuff size
+                    Mbuff_c_size = calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size);
+                    //calculate new continuous MBuff duration
+                    Mbuff_c_duration = Mbuff_c_size * frame_duration;
+                }
+            }
+
+            //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
+            //if next frame number is not as expected, discard calculated buffer size
+            if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
+                Mbuff_c_duration = 0;
+                Mbuff_c_size = 0;
+            }
+
+            Mbuff_changed = false;
+
+            //set buffer status ('NEW', 'READY', 'BUFFERING')
+            current_mbuff_status = calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i);
+
+
+
+            /**
+             * Check if updated buffers (both) should start playback
+             */
+            if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
+                current_vbuff_status = 'PLAYING';
+                if (v_t_play == 0) {
+                    v_t_play = incoming_vframe.T_display;
+                }
+            }
+            if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
+                if (Mbuff[0].T_display <= Vbuff[0].T_display) {
+                    if (m_t_play == 0) {
+                        m_t_play = incoming_vframe.T_display;
+                        init_t_diff = m_t_play - v_t_play;
                     }
-                }
-
-                //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
-                //if next frame number is not as expected, discard calculated buffer size
-                if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
-                    Mbuff_c_duration = 0;
-                    Mbuff_c_size = 0;
-                }
-
-                Mbuff_changed = false;
-
-                //set buffer status ('NEW', 'READY', 'BUFFERING')
-                current_mbuff_status = calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i);
-
-
-
-                /**
-                 * Check if updated buffers (both) should start playback
-                 */
-                if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
-                    current_vbuff_status = 'PLAYING';
-                    if (v_t_play == 0) {
-                        v_t_play = incoming_vframe.T_display;
-                    }
-                }
-                if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
-                    if (Mbuff[0].T_display <= Vbuff[0].T_display) {
-                        if (m_t_play == 0) {
-                            m_t_play = incoming_vframe.T_display;
-                            init_t_diff = m_t_play - v_t_play;
-                        }
-                        current_mbuff_status = 'PLAYING';
-                        Mbuff_changed = true;
-                    }
-                }
-
-                if (DELAYED_START) {
-                    if ((current_vbuff_status == 'READY' || current_vbuff_status == 'PLAYING') && current_mbuff_status != 'PLAYING' && Vbuff[0].FRN == 0) {
-                        current_vbuff_status = 'READY';
-                    }
-                }
-
-                //removed qeued element
-                if (current_vbuff_status == 'PLAYING') {
-                    if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
-                        v_curr_Frame = Vbuff.shift();
-                        v_next_FRN = v_curr_Frame.FRN + 1;
-                    }
-                }
-                if (current_mbuff_status == 'PLAYING') {
-                    m_curr_Frame = Mbuff.shift();
-                    m_next_FRN = m_curr_Frame.FRN + 1;
+                    current_mbuff_status = 'PLAYING';
                     Mbuff_changed = true;
-                    //console.log('Displayed: '+ m_curr_Frame.FRN+'    for'+v_curr_Frame.FRN);
-                    displayed_mframes++;
                 }
+            }
 
-                /**
-                 * mean, min, man - delay estimations (from Mbuffer)
-                 */
+            if (DELAYED_START) {
+                if ((current_vbuff_status == 'READY' || current_vbuff_status == 'PLAYING') && current_mbuff_status != 'PLAYING' && Vbuff[0].FRN == 0) {
+                    current_vbuff_status = 'READY';
+                }
+            }
+
+            //removed qeued element
+            if (current_vbuff_status == 'PLAYING') {
+                if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
+                    v_curr_Frame = Vbuff.shift();
+                    v_next_FRN = v_curr_Frame.FRN + 1;
+                }
+            }
+            if (current_mbuff_status == 'PLAYING') {
+                m_curr_Frame = Mbuff.shift();
+                m_next_FRN = m_curr_Frame.FRN + 1;
+                Mbuff_changed = true;
+                //console.log('Displayed: '+ m_curr_Frame.FRN+'    for'+v_curr_Frame.FRN);
+                displayed_mframes++;
+            }
+
+            /**
+             * mean, min, man - delay estimations (from Mbuffer)
+             */
+            if (Mbuff.length > 0) {
+                //1. FRN-agnostic
                 if (Mbuff.length > 0) {
-                    //1. FRN-agnostic
-                    if (Mbuff.length > 0) {
-                        var dd = 0;
-                        Mbuff.forEach(function (element) {
-                            var elemD = element.T_arrival - element.T_display;
-                            dd += elemD;
-                            D_max_observed = D_max_observed > elemD ? D_max_observed : elemD;
-                            D_min_observed = D_min_observed < elemD ? D_min_observed : elemD;
-                        }, this);
-                        D_mean_buffer = dd / Mbuff.length;
-                        //console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
-                    }
-                    //2. FRN-aware
-                    //Not used - Less accurate
-                    /*
-                    if (Mbuff.length > 0) {
-    
-                        var Dmean = -1;
-    
-                        if(Mbuff[0].FRN != m_next_FRN){
-                            Dmean = -2
-                        }else{
-                            var dd =0;
-                            for(var i =1; i<Mbuff.length; i++){
-                                var element = Mbuff[i];
-                                if(element.FRN == Mbuff[i-1].FRN+1){
-                                    dd += element.T_arrival - element.T_display;
-                                }else{
-                                    Dmean = dd/i;
-                                    break;
-                                }
+                    var dd = 0;
+                    Mbuff.forEach(function (element) {
+                        var elemD = element.T_arrival - element.T_display;
+                        dd += elemD;
+                        D_max_observed = D_max_observed > elemD ? D_max_observed : elemD;
+                        D_min_observed = D_min_observed < elemD ? D_min_observed : elemD;
+                    }, this);
+                    D_mean_buffer = dd / Mbuff.length;
+                    //console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
+                }
+                //2. FRN-aware
+                //Not used - Less accurate
+                /*
+                if (Mbuff.length > 0) {
+ 
+                    var Dmean = -1;
+ 
+                    if(Mbuff[0].FRN != m_next_FRN){
+                        Dmean = -2
+                    }else{
+                        var dd =0;
+                        for(var i =1; i<Mbuff.length; i++){
+                            var element = Mbuff[i];
+                            if(element.FRN == Mbuff[i-1].FRN+1){
+                                dd += element.T_arrival - element.T_display;
+                            }else{
+                                Dmean = dd/i;
+                                break;
                             }
                         }
                     }
-                    */
                 }
-
-
-
-                if (DETAILED_ANALYSIS) {
-                    tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + vbuff_thres + (DEPENDENT ? 'D' : '') + '.txt',
-                        '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + (v_next_FRN) + '\t' + current_mbuff_status);
-                }
-
-
+                */
             }
 
-            if (METRICS_M.m_r_first == 0) {
-                per_in_sync = 1.0;
-            } else {
-                var clean_duration = (TEST_DURATION - m_t_play);
-                per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
+
+
+            if (DETAILED_ANALYSIS) {
+                tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt',
+                    '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (m_next_FRN) + '\t' + (v_next_FRN) + '\t' + current_mbuff_status);
             }
 
-            analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
+
         }
+
+        if (METRICS_M.m_r_first == 0) {
+            per_in_sync = 1.0;
+        } else {
+            var clean_duration = (TEST_DURATION - m_t_play);
+            per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
+        }
+
+        analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
+
     }
     return analysis_results;
 
