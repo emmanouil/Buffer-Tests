@@ -39,13 +39,15 @@ const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() +
 //ENTRY POINT - MAIN
 
 
-var normal_files_list = { files: '', fileslength: ''};
-var normal_res_obj = {results: []};
-var uniform_files_list = { files: '', fileslength: ''};
-var uniform_res_obj = {results: []};
+var normal_files_list = { files: '', fileslength: '' };
+var normal_res_obj = { results: [] };
+var uniform_files_list = { files: '', fileslength: '' };
+var uniform_res_obj = { results: [] };
 //TODO split file parsing with results
-performAnalysis(normal_files_list, 'NORMAL', normal_res_obj);
-performAnalysis(uniform_files_list, 'NORMAL', uniform_res_obj);
+readStreamFiles(normal_files_list, 'NORMAL');
+performAnalysis(normal_files_list, normal_res_obj);
+readStreamFiles(uniform_files_list, 'UNIFORM');
+performAnalysis(uniform_files_list, uniform_res_obj);
 
 //var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
 //var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
@@ -322,21 +324,30 @@ function do_analysis(file_in) {
 
 /*----- SPECIFIC FUNCTIONS ---*/
 /**
- * Reads the files from the list and performs analysis on the elements (dataset)
+ * Parses the filenames from the list
  * @param {obj} files_obj_in object to store results
- * @param {obj} res_obj_out object to store results
  * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
  * 
  */
-function performAnalysis(files_obj_in, type, res_obj_out) {
+function readStreamFiles(files_obj_in, type) {
     files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
     files_obj_in.fileslength = files_obj_in.files.length;
+}
 
+/**
+ * Reads the files from the list and performs analysis on the elements (dataset)
+ * @param {obj} files_obj_in object to store results
+ * @param {obj} res_obj_out object to store results
+ * 
+ */
+function performAnalysis(files_obj_in, res_obj_out) {
     for (var i_t = 0; i_t < files_obj_in.fileslength; i_t++) {
         var result = do_analysis(files_obj_in.files[i_t].File);
         res_obj_out.results.push(result);
     }
 }
+
+
 
 /**
  * Parses the contents from the object returned from performAnalysis and writes to file
