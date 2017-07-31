@@ -31,16 +31,16 @@ var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
 
-    var ONorm = { files: '', fileslength: '', results: [] };
-    var OUni = { files: '', fileslength: '', results: [] };
-    performAnalysis(ONorm, 'NORMAL');
-    performAnalysis(OUni, 'UNIFORM');
+var ONorm = { files: '', fileslength: '', results: [] };
+var OUni = { files: '', fileslength: '', results: [] };
+performAnalysis(ONorm, 'NORMAL');
+performAnalysis(OUni, 'UNIFORM');
 
-    //var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
-    //var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
-    var res_to_file_n = resultsToFile(ONorm, 'NORMAL');
-    var res_to_file_u = resultsToFile(OUni, 'UNIFORM');
-    console.log('done');
+//var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
+//var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
+var res_to_file_n = resultsToFile(ONorm, 'NORMAL');
+var res_to_file_u = resultsToFile(OUni, 'UNIFORM');
+console.log('done');
 
 console.log('All test DONE');
 
