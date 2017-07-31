@@ -57,23 +57,22 @@ console.log('All test DONE');
 
 function do_analysis(file_in) {
 
+    //Variables
+    //holder of analysis results
     var analysis_results = [];
-
-    //other vars
-    var dela_ordered = [], video_ordered = [];
-
-    //Actual execution entry point
-    video_ordered = tl.readJSON(VIDEO_IN_FILE);
-    //bubble sort to delayed coords
-    dela_ordered = tl.readJSON(file_in).slice(0);
-    //bubbleSortArray(dela_ordered, 4); //sort according to FRN
+    //incoming video frames
+    var video_ordered = tl.readJSON(VIDEO_IN_FILE);
+    //incoming extra frames
+    var dela_ordered = tl.readJSON(file_in).slice(0);
+    //frame duration (should be the same for extra and video frames)
     var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
+
+    //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
     /**
      * ENTRY POINT OF THE SIMULATION
      */
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
-
         /**
          * Setup simulation environment for specific sample file
          */
@@ -92,14 +91,6 @@ function do_analysis(file_in) {
             item.T_display = elem.T_display;
             item.FRN = elem.FRN;
             item.contents = -1; //empty
-            item.inBuffer = false;
-            if (i_a < dela_ordered.length - 1) {
-                item.TnextDiff = parseInt(dela_ordered[i_a + 1].T_display - item.T_display);
-                item.FRNnext = parseInt(dela_ordered[i_a + 1].FRN); //in case we have missing frames (i.e. non-consecutive FRNs)
-            } else {
-                item.TnextDiff = -1;
-                item.FRNnext = -1;
-            }
             dela_list.push(item);
         }
 
@@ -136,7 +127,7 @@ function do_analysis(file_in) {
         for (var v_i = 0; v_i < video_ordered.length; v_i++) {
 
             if (TEST_DURATION < (incoming_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
-                //we do not calculate it sincei it is equal to m_r_duration
+                //we do not calculate it since it is equal to m_r_duration
                 //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
                 break;
             }
