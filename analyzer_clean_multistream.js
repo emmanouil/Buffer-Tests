@@ -31,15 +31,26 @@ var date = new Date();
 const RESULTS_FILE = date.getHours().toString() + date.getMinutes().toString() + date.getDate().toString() + date.getMonth().toString() + date.getFullYear().toString();
 
 
-var ONorm = { files: '', fileslength: '', results: [] };
-var OUni = { files: '', fileslength: '', results: [] };
-performAnalysis(ONorm, 'NORMAL');
-performAnalysis(OUni, 'UNIFORM');
+
+
+
+
+
+//ENTRY POINT - MAIN
+
+
+var normal_files_list = { files: '', fileslength: ''};
+var normal_res_obj = {results: []};
+var uniform_files_list = { files: '', fileslength: ''};
+var uniform_res_obj = {results: []};
+//TODO split file parsing with results
+performAnalysis(normal_files_list, 'NORMAL', normal_res_obj);
+performAnalysis(uniform_files_list, 'NORMAL', uniform_res_obj);
 
 //var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
 //var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
-var res_to_file_n = resultsToFile(ONorm, 'NORMAL');
-var res_to_file_u = resultsToFile(OUni, 'UNIFORM');
+var res_to_file_n = resultsToFile(normal_res_obj, 'NORMAL');
+var res_to_file_u = resultsToFile(uniform_res_obj, 'UNIFORM');
 console.log('done');
 
 console.log('All test DONE');
@@ -312,27 +323,28 @@ function do_analysis(file_in) {
 /*----- SPECIFIC FUNCTIONS ---*/
 /**
  * Reads the files from the list and performs analysis on the elements (dataset)
- * @param {obj} obj_in object to store results
+ * @param {obj} files_obj_in object to store results
+ * @param {obj} res_obj_out object to store results
  * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
  * 
  */
-function performAnalysis(obj_in, type) {
-    obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
-    obj_in.fileslength = obj_in.files.length;
+function performAnalysis(files_obj_in, type, res_obj_out) {
+    files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
+    files_obj_in.fileslength = files_obj_in.files.length;
 
-    for (var i_t = 0; i_t < obj_in.fileslength; i_t++) {
-        var result = do_analysis(obj_in.files[i_t].File);
-        obj_in.results.push(result);
+    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t++) {
+        var result = do_analysis(files_obj_in.files[i_t].File);
+        res_obj_out.results.push(result);
     }
 }
 
 /**
  * Parses the contents from the object returned from performAnalysis and writes to file
- * @param {obj} obj_in object containing results
+ * @param {obj} res_obj_in object containing results
  * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
  * @returns {obj} containing fields written to file
  */
-function resultsToFile(obj_in, type) {
+function resultsToFile(res_obj_in, type) {
     var res_to_file = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'IFrames': 0, 'Duration': 0, 'EndSize': 0, 'StartT': 0, 'FirstRT': 0, 'TimeInSync': 0, 'Displayed': 0, 'Dropped': 0 }];
     var t;
     if (type == 'NORMAL') { t = 'N' } else if (type == 'UNIFORM') { t = 'U' }
@@ -342,7 +354,7 @@ function resultsToFile(obj_in, type) {
 
     //Object.assign({},res_to_file_n);
     var runs = 0;
-    obj_in.results.forEach(function (element, index, array) {
+    res_obj_in.results.forEach(function (element, index, array) {
         runs++;
         for (var i_i = 0; i_i < element.length; i_i++) {
             var a = element[i_i];
