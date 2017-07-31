@@ -50,7 +50,6 @@ performAnalysis(uniform_files_list, uniform_res_obj);
 //var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
 var res_to_file_n = resultsToFile(normal_res_obj, 'NORMAL');
 var res_to_file_u = resultsToFile(uniform_res_obj, 'UNIFORM');
-console.log('done');
 
 console.log('All test DONE');
 
@@ -61,13 +60,12 @@ function do_analysis(file_in) {
     var analysis_results = [];
 
     //other vars
-    var proj = [], dela = [], dela_ordered = [], video_ordered = [];
+    var dela_ordered = [], video_ordered = [];
 
     //Actual execution entry point
-    dela = proj = tl.readJSON(file_in);
     video_ordered = tl.readJSON(VIDEO_IN_FILE);
     //bubble sort to delayed coords
-    dela_ordered = dela.slice(0);
+    dela_ordered = tl.readJSON(file_in).slice(0);
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
     var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
 
