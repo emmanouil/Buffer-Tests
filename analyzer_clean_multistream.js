@@ -55,6 +55,19 @@ console.log('All test DONE');
 
 
 
+/*
+ * STARTOF objects
+ */
+function Stream(filename, id){
+    this.filename = filename;
+    this.frames_FRN_ordered = tl.readJSON(filename).slice(0);
+    this.frames_Tarr_ordered = this.frames_FRN_ordered.slice(0);
+    bubbleSortArrayByProperty(this.frames_Tarr_ordered, 'T_arrival');
+    this.ID = id;
+}
+
+
+
 function do_analysis(file_in) {
 
 
