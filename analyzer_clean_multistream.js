@@ -66,6 +66,14 @@ function Stream(filename, id){
     this.ID = id;
 }
 
+function Buffer(id){
+    this.frames = [];
+    this.size_Continuous = 0;
+    this.size_Fragmented = 0;
+    this.duration_Continuous = 0;
+    this.duration_Fragmented = 0;
+    this.ID = id;
+}
 
 
 function do_analysis(file_in) {
@@ -104,8 +112,6 @@ function do_analysis(filenames_in, number_of_streams) {
     //Variables
     //holder of simulated streams
     var streams = [];
-    //holder of simulated buffers TODO: move later
-    var buffers = [];
     //holder of analysis results
     var analysis_results = [];
     //incoming video frames
@@ -124,6 +130,10 @@ function do_analysis(filenames_in, number_of_streams) {
      * ENTRY POINT OF THE SIMULATION
      */
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
+        //holder of simulated buffers
+        var buffers = [];
+        //TODO reset Stream objects
+
         /**
          * Setup simulation environment for specific sample file
          */
@@ -158,6 +168,10 @@ function do_analysis(filenames_in, number_of_streams) {
         var incoming_vframe = video_ordered[0];
         var current_vbuff_status = 'NEW';
 
+        for(var i = 0; i<number_of_streams; i++){
+            buffers.push(new Buffer(i));
+        }
+        
         var Mbuff = [];
         var Mbuff_f_duration = 0;
         var Mbuff_c_duration = 0;
