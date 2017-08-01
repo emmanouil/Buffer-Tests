@@ -64,6 +64,7 @@ function Stream(filename, id){
     this.frames_Tarr_ordered = this.frames_FRN_ordered.slice(0);
     bubbleSortArrayByProperty(this.frames_Tarr_ordered, 'T_arrival');
     this.ID = id;
+    this.nextFrameIndex = 0;
 }
 
 function Buffer(id){
@@ -76,7 +77,6 @@ function Buffer(id){
 }
 
 
-function do_analysis(file_in) {
 
 
 /*
@@ -144,19 +144,6 @@ function do_analysis(filenames_in, number_of_streams) {
         //for resetting queues
         var dela_list = [];
         var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
-
-        for (var i_a = 0; i_a < dela_ordered.length; i_a++) {
-            var elem = dela_ordered[i_a];
-            var item = {};
-            item.T_arrival = elem.T_arrival;
-            item.T_display = elem.T_display;
-            item.FRN = elem.FRN;
-            item.contents = -1; //empty
-            dela_list.push(item);
-        }
-
-        var dela_Tarr_ordered = dela_list.slice(0);
-        bubbleSortArrayByProperty(dela_Tarr_ordered, 'T_arrival');
 
         if (DETAILED_ANALYSIS) {
             tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
