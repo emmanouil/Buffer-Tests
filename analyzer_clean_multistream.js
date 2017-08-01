@@ -94,18 +94,31 @@ function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
     }
 }
 
+/**
+ * 
+ * @param {list} filenames_in filenames of metadata files
+ * @param {int} number_of_streams number of streams/buffers to simulate
+ */
+function do_analysis(filenames_in, number_of_streams) {
+
+    //Variables
+    //holder of simulated streams
+    var streams = [];
+    //holder of simulated buffers TODO: move later
+    var buffers = [];
+    //holder of analysis results
     var analysis_results = [];
+    //incoming video frames
+    var video_ordered = tl.readJSON(VIDEO_IN_FILE); //TODO objectify
+    //incoming extra frames
+    for(var i =0; i<number_of_streams; i++){
+        streams.push(new Stream((filenames_in[i]), i));
+    }
 
-    //other vars
-    var proj = [], dela = [], dela_ordered = [], video_ordered = [];
+    //frame duration (should be the same for extra and video frames)
+    var frame_duration = video_ordered[1].T_display - video_ordered[0].T_display; //TODO uniform format
 
-    //Actual execution entry point
-    dela = proj = tl.readJSON(file_in);
-    video_ordered = tl.readJSON(VIDEO_IN_FILE);
-    //bubble sort to delayed coords
-    dela_ordered = dela.slice(0);
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
-    var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
 
     /**
      * ENTRY POINT OF THE SIMULATION
