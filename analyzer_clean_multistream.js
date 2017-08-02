@@ -93,6 +93,10 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         }
     }
 
+    this.push = function (frame) {
+        this.frames.push(frame);
+        this.changed = true;
+    }
 
     this.updateStatus = function () {
 
