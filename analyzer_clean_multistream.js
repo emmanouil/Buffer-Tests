@@ -64,10 +64,10 @@ function Stream(filename, id) {
     this.frames_Tarr_ordered = this.frames_FRN_ordered.slice(0);
     bubbleSortArrayByProperty(this.frames_Tarr_ordered, 'T_arrival');
     this.ID = id;
-    this.nextFrameIndex = 0;
+    this.nextFrameIndex = 0;    //TODO reset on new simulation
 }
 
-function Buffer(id, type = 'META', Binit = 0) {
+function Buffer(id, stream, type = 'META', Binit = 0) {
     this.frames = [];
     this.size_Continuous = 0;
     this.size_Fragmented = 0;
@@ -79,6 +79,8 @@ function Buffer(id, type = 'META', Binit = 0) {
     this.type = type
     this.Binit = Binit;
     this.Bplay = 0;
+    this.stream = stream;
+
 
 
     this.updateStatus = function () {
