@@ -81,6 +81,17 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.Bplay = 0;
     this.stream = stream;
 
+    this.receiveFrames = function(timeNow){
+        for(var i = this.stream.nextFrameIndex; i < this.stream.frames_Tarr_ordered.length; i++){
+            var incoming_frame = this.stream.frames_Tarr_ordered[i];
+            if( incoming_frame.T_arrival <= timeNow){
+                this.push(incoming_frame);
+            }else{
+                this.stream.nextFrameIndex = i;
+                break;
+            }
+        }
+    }
 
 
     this.updateStatus = function () {
