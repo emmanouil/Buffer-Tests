@@ -116,9 +116,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
             }
         }
-
     }
-
 }
 
 
@@ -160,14 +158,15 @@ function do_analysis(filenames_in, number_of_streams) {
     //holder of analysis results
     var analysis_results = [];
     //incoming video frames
-    var video_ordered = tl.readJSON(VIDEO_IN_FILE);
+    var video_ordered = tl.readJSON(VIDEO_IN_FILE); //TODO objectify
+    //var video_stream = (new Stream((VIDEO_IN_FILE), -1));   //TODO i.e. use this instead
     //incoming extra frames
     for (var i = 0; i < number_of_streams; i++) {
         streams.push(new Stream((filenames_in[i]), i));
     }
 
     //frame duration (should be the same for extra and video frames)
-    var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
+    var frame_duration = video_ordered[1].T_display - video_ordered[0].T_display; //TODO uniform format
 
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
@@ -175,6 +174,10 @@ function do_analysis(filenames_in, number_of_streams) {
      * ENTRY POINT OF THE SIMULATION
      */
     for (var mbuff_thres = META_BUFFER_PLAY_THRESHOLD_MIN; mbuff_thres <= META_BUFFER_PLAY_THRESHOLD_MAX; mbuff_thres += META_BUFFER_PLAY_THRESHOLD_STEP) {
+        //holder of simulated buffers
+        var buffers = [];
+        //TODO reset Stream objects
+
         /**
          * Setup simulation environment for specific sample file
          */
@@ -194,6 +197,7 @@ function do_analysis(filenames_in, number_of_streams) {
         var T_end = T_zero + TEST_DURATION;
         var VBuff = new Buffer(-1, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
         var incoming_vframe = video_ordered[0];
+        var incoming_mframes = [];
         var current_vbuff_status = 'NEW';
 
         for (var i = 0; i < number_of_streams; i++) {
@@ -206,7 +210,7 @@ function do_analysis(filenames_in, number_of_streams) {
         var v_curr_Frame = {};
         var m_next_FRN = 0; //next FRN of meta-frame to be played
         var v_next_FRN = 0; //next FRN of vid-frame to be played
-        var incoming_mframe = dela_Tarr_ordered[m_index];
+        //        var incoming_mframe = dela_Tarr_ordered[m_index]; //todo delete this
         var current_mbuff_status = 'NEW';
 
         /**
@@ -245,7 +249,8 @@ function do_analysis(filenames_in, number_of_streams) {
                 //TODO check if buffer status and stream next frame is changed on push
             }
 
-
+            //TODO implement this (Drop frames behaviour)
+            /*
             if (DROP_FRAMES && current_vbuff_status == 'PLAYING') {
                 while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
                     //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
@@ -257,7 +262,7 @@ function do_analysis(filenames_in, number_of_streams) {
                     m_next_FRN = Vbuff[0].FRN;
                 }
             }
-
+            */
 
             //Re-sort MBuff
             if (Mbuff_changed && Mbuff.length > 0) {
