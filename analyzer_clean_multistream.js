@@ -80,7 +80,6 @@ function Buffer(id, type = 'META', Binit = 0) {
     this.Binit = Binit;
     this.Bplay = 0;
 
-function do_analysis(file_in) {
 
     this.updateStatus = function () {
 
@@ -131,6 +130,13 @@ function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
         res_obj_out.results.push(result);
     }
 }
+
+/**
+ * 
+ * @param {list} filenames_in filenames of metadata files
+ * @param {int} number_of_streams number of streams/buffers to simulate
+ */
+function do_analysis(filenames_in, number_of_streams) {
 
     //Variables
     //holder of analysis results
