@@ -133,22 +133,59 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     }
 
     this.updateStatus = function () {
-        if (this.status == 'NEW') {
-            if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
-                this.status = 'READY';
-                console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
-            }
-        } else if (this.status == 'PLAYING') {
-            if (this.frames.length == 0) {
-                this.status = 'BUFFERING';
-                console.log(this.type + " " + this.ID + " BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
-            }
-        } else if (this.status == 'BUFFERING') {
-            if (this.frames.length > 0) {
-                this.status = 'READY';
-                console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+        if (this.type == 'VIDEO') {
+            if (this.status == 'NEW') {
+                if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
+                    this.status = 'READY';
+                    console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                }
+            } else if (this.status == 'PLAYING') {
+                if (this.frames.length == 0) {
+                    this.status = 'BUFFERING';
+                    console.log(this.type + " " + this.ID + " BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                }
+            } else if (this.status == 'BUFFERING') {
+                if (this.frames.length > 0) {
+                    this.status = 'READY';
+                    console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                }
             }
         }
+        else if (this.type == 'META') {
+
+            var cms = this.status;
+
+            if (cms == 'NEW') {
+                //METRICS_M.m_i_frames++;
+                if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
+                    cms = 'READY';
+                    console.log(this.Binit + " META READY @ " + this.frames.length)
+                }
+            } else if (cms == 'PLAYING') {
+                if (this.frames.length == 0 || this.size_Continuous == 0) {
+                    cms = 'BUFFERING';
+                    /*if (METRICS_M.m_r_first == 0) {
+                        METRICS_M.m_r_first = incoming_vframe.T_display;
+                    }
+                    METRICS_M.m_r_events++;
+                    METRICS_M.m_r_frames++;*/
+                    console.log("META BUFFERING")
+                }
+            } else if (cms == 'BUFFERING') {
+                //METRICS_M.m_r_frames++;
+                if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
+                    cms = 'READY';
+                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
+                }
+            }
+            if (cms == 'BUFFERING') {
+                //METRICS_M.m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
+            }
+            this.status = cms;
+        } else {
+            console.error('UNKNOWN BUFFER TYPE');
+        }
+
     }
 }
 
@@ -192,7 +229,7 @@ function do_analysis(filenames_in, number_of_streams) {
     var analysis_results = [];
     //incoming video frames
     var video_ordered = tl.readJSON(VIDEO_IN_FILE); //TODO objectify
-    //var video_stream = (new Stream((VIDEO_IN_FILE), -1));   //TODO i.e. use this instead
+    var video_stream = (new Stream((VIDEO_IN_FILE), -1));   //TODO i.e. use this instead
     //incoming extra frames
     for (var i = 0; i < number_of_streams; i++) {
         streams.push(new Stream((filenames_in[i]), i));
