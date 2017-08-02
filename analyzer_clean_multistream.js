@@ -82,6 +82,28 @@ function Buffer(id, type = 'META', Binit = 0) {
 
 function do_analysis(file_in) {
 
+    this.updateStatus = function () {
+
+        if (this.status == 'NEW') {
+
+            if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
+                this.status = 'READY';
+                console.log(this.type+" "+this.ID+" READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+            }
+        } else if (this.status == 'PLAYING') {
+            if (this.frames.length == 0) {
+                this.status = 'BUFFERING';
+                console.log(this.type+" "+this.ID+" BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
+            }
+        } else if (this.status == 'BUFFERING') {
+            if (this.frames.length > 0) {
+                this.status = 'READY';
+                console.log(this.type+" "+this.ID+" READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+            }
+        }
+
+    }
+
 }
 
 
