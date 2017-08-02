@@ -229,7 +229,7 @@ function do_analysis(filenames_in, number_of_streams) {
 
         var T_zero = video_ordered[0].T_display;    //first vframe timestamp
         var T_end = T_zero + TEST_DURATION;
-        var VBuff = new Buffer(-1, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
+        var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
         var incoming_vframe = video_ordered[0];
         var incoming_mframes = [];
         var current_vbuff_status = 'NEW';
