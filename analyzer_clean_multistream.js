@@ -108,6 +108,30 @@ function do_analysis(file_in) {
 
 
 
+
+/*
+ * STARTOF functions
+ */
+
+/**
+ * Reads the files from the list and performs analysis on the elements (dataset)
+ * @param {obj} files_obj_in object to store results
+ * @param {obj} res_obj_out object to store results
+ * @param {int} number_of_streams number of incoming metadata streams to simulate (always keeping 0-delay video as reference)
+ * 
+ */
+function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
+    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t++) {
+        var files_in = [];
+        //build file-in list
+        for (var i_x = i_t; i_x < number_of_streams + i_t; i_x++) {
+            files_in.push(files_obj_in.files[i_x].File);
+        }
+        var result = do_analysis(files_in, number_of_streams);
+        res_obj_out.results.push(result);
+    }
+}
+
     //Variables
     //holder of analysis results
     var analysis_results = [];
@@ -368,20 +392,6 @@ function readStreamFiles(files_obj_in, type) {
     files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
     files_obj_in.fileslength = files_obj_in.files.length;
 }
-
-/**
- * Reads the files from the list and performs analysis on the elements (dataset)
- * @param {obj} files_obj_in object to store results
- * @param {obj} res_obj_out object to store results
- * 
- */
-function performAnalysis(files_obj_in, res_obj_out) {
-    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t++) {
-        var result = do_analysis(files_obj_in.files[i_t].File);
-        res_obj_out.results.push(result);
-    }
-}
-
 
 
 /**
