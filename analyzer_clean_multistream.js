@@ -102,7 +102,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.updateFrames = function () {
         if (this.changed && this.frames.length > 0) {
             bubbleSortArrayByProperty(this.frames, 'FRN');
-            this.size_Fragmented = this.frames[this.frames.length - 1].T_display - this.frames[0].T_display;    //we do not care about this (length is more meaningful)
+            this.size_Fragmented = this.frames.length;    //we use length instead
             this.duration_Fragmented = this.size_Fragmented * frame_duration;   //only used here
             this.calculateSizeContinuous();
             this.changed = false;
@@ -110,7 +110,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     }
 
     this.calculateSizeContinuous = function () {
-        if (this.frames.length > 1) {
+        if (this.frames.length > 0) {
             if (this.frames[0].FRN != m_next_FRN) {
                 this.size_Continuous = 0;
             } else {
@@ -199,7 +199,8 @@ function do_analysis(filenames_in, number_of_streams) {
     }
 
     //frame duration (should be the same for extra and video frames)
-    var frame_duration = video_ordered[1].T_display - video_ordered[0].T_display; //TODO uniform format
+    //TODO frame_duration is global
+    frame_duration = video_ordered[1].T_display - video_ordered[0].T_display; //TODO uniform format
 
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
@@ -241,7 +242,7 @@ function do_analysis(filenames_in, number_of_streams) {
         var m_index = 0;
         var m_curr_Frame = {};
         var v_curr_Frame = {};
-        var m_next_FRN = 0; //next FRN of meta-frame to be played
+        m_next_FRN = 0; //next FRN of meta-frame to be played //TODO this is global
         var v_next_FRN = 0; //next FRN of vid-frame to be played
         //        var incoming_mframe = dela_Tarr_ordered[m_index]; //todo delete this
         var current_mbuff_status = 'NEW';
@@ -297,21 +298,12 @@ function do_analysis(filenames_in, number_of_streams) {
             }
             */
 
-            //re-sort frames in buffer
+            //re-sort frames in buffer and update sizes
             for (var i = 0; i < number_of_streams; i++) {
                 buffers[i].updateFrames();
                 //TODO check if buffer status and stream next frame is changed on push
             }
-
-            //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
-            //if next frame number is not as expected, discard calculated buffer size
-            if (Mbuff.length == 0 || Mbuff[0].FRN != m_next_FRN) {
-                Mbuff_c_duration = 0;
-                Mbuff_c_size = 0;
-            }
-
-            Mbuff_changed = false;
-
+            continue;
             //set buffer status ('NEW', 'READY', 'BUFFERING')
             current_mbuff_status = calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i);
 
