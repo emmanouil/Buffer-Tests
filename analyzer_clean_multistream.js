@@ -22,6 +22,7 @@ const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
 
 const VIDEO_BUFFER_PLAY_THRES = 1000; //in ms
+const NUMBER_OF_STREAMS = 1;    //number of metadata streams (+a 0-delay video stream used as reference)
 
 const TEST_DURATION = 40000; //in ms
 
@@ -42,9 +43,9 @@ var uniform_files_list = { files: '', fileslength: '' };
 var uniform_res_obj = { results: [] };
 //TODO split file parsing with results
 readStreamFiles(normal_files_list, 'NORMAL');
-performAnalysis(normal_files_list, normal_res_obj);
+performAnalysis(normal_files_list, normal_res_obj, NUMBER_OF_STREAMS);
 readStreamFiles(uniform_files_list, 'UNIFORM');
-performAnalysis(uniform_files_list, uniform_res_obj);
+performAnalysis(uniform_files_list, uniform_res_obj, NUMBER_OF_STREAMS);
 
 //var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
 //var res_to_file_u = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
@@ -99,22 +100,20 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     }
 
     this.updateStatus = function () {
-
         if (this.status == 'NEW') {
-
             if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
                 this.status = 'READY';
-                console.log(this.type+" "+this.ID+" READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
             }
         } else if (this.status == 'PLAYING') {
             if (this.frames.length == 0) {
                 this.status = 'BUFFERING';
-                console.log(this.type+" "+this.ID+" BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                console.log(this.type + " " + this.ID + " BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
             }
         } else if (this.status == 'BUFFERING') {
             if (this.frames.length > 0) {
                 this.status = 'READY';
-                console.log(this.type+" "+this.ID+" READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
             }
         }
 
