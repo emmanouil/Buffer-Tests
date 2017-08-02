@@ -155,12 +155,17 @@ function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
 function do_analysis(filenames_in, number_of_streams) {
 
     //Variables
+    //holder of simulated streams
+    var streams = [];
     //holder of analysis results
     var analysis_results = [];
     //incoming video frames
     var video_ordered = tl.readJSON(VIDEO_IN_FILE);
     //incoming extra frames
-    var dela_ordered = tl.readJSON(file_in).slice(0);
+    for (var i = 0; i < number_of_streams; i++) {
+        streams.push(new Stream((filenames_in[i]), i));
+    }
+
     //frame duration (should be the same for extra and video frames)
     var frame_duration = dela_ordered[1].T_display - dela_ordered[0].T_display;
 
