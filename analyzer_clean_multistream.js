@@ -188,15 +188,15 @@ function do_analysis(filenames_in, number_of_streams) {
 
         var T_zero = video_ordered[0].T_display;    //first vframe timestamp
         var T_end = T_zero + TEST_DURATION;
-        var Vbuff = [];
+        var VBuff = new Buffer(-1, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
         var incoming_vframe = video_ordered[0];
         var current_vbuff_status = 'NEW';
 
-        var Mbuff = [];
-        var Mbuff_f_duration = 0;
-        var Mbuff_c_duration = 0;
-        var Mbuff_c_size = 0;
-        var Mbuff_changed = false;
+        for (var i = 0; i < number_of_streams; i++) {
+            buffers.push(new Buffer(i, streams[i], 'META', mbuff_thres));
+        }
+
+
         var m_index = 0;
         var m_curr_Frame = {};
         var v_curr_Frame = {};
@@ -225,22 +225,20 @@ function do_analysis(filenames_in, number_of_streams) {
             //select current incoming vframe
             incoming_vframe = video_ordered[v_i];
             //push current incoming vframe in Vbuffer    
-            Vbuff.push(video_ordered[v_i]);
+            VBuff.push(video_ordered[v_i]);
             //set buffer status ('NEW', 'READY', 'BUFFERING')
-            current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, VIDEO_BUFFER_PLAY_THRES);
+            //TODO: delete this - moved in buffer function
+            //current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, VIDEO_BUFFER_PLAY_THRES);
+            VBuff.updateStatus();
 
 
             /**
              * Check arriving mframes and MBuff status
              */
             //select current incoming mframe
-            incoming_mframe = dela_Tarr_ordered[m_index];
-            //push incoming mframes in MBuffer
-            while (incoming_mframe.T_arrival <= incoming_vframe.T_display) {
-                Mbuff.push(incoming_mframe);
-                m_index++;
-                incoming_mframe = dela_Tarr_ordered[m_index];
-                Mbuff_changed = true;
+            for (var i = 0; i < number_of_streams; i++) {
+                buffers[i].receiveFrames(incoming_vframe.T_display)
+                //TODO check if buffer status and stream next frame is changed on push
             }
 
 
