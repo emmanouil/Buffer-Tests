@@ -417,6 +417,21 @@ function do_analysis(filenames_in, number_of_streams) {
 
 
 /*----- SPECIFIC FUNCTIONS ---*/
+
+function startPlayback(video_buffer, meta_buffers) {
+    var res = true;
+    if (!video_buffer.status == 'READY' || !video_buffer.status == 'PLAYING') {
+        return res = false;
+    } else {
+        for (buffer in meta_buffers) {
+            if (!buffer.status == 'READY' || !buffer.status == 'PLAYING') {
+                return res = false;
+            }
+        }
+    }
+    return res = true;
+}
+
 /**
  * Parses the filenames from the list
  * @param {obj} files_obj_in object to store results
