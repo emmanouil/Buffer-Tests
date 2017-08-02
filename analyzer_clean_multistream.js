@@ -82,12 +82,12 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.Bplay = 0;
     this.stream = stream;
 
-    this.receiveFrames = function(timeNow){
-        for(var i = this.stream.nextFrameIndex; i < this.stream.frames_Tarr_ordered.length; i++){
+    this.receiveFrames = function (timeNow) {
+        for (var i = this.stream.nextFrameIndex; i < this.stream.frames_Tarr_ordered.length; i++) {
             var incoming_frame = this.stream.frames_Tarr_ordered[i];
-            if( incoming_frame.T_arrival <= timeNow){
+            if (incoming_frame.T_arrival <= timeNow) {
                 this.push(incoming_frame);
-            }else{
+            } else {
                 this.stream.nextFrameIndex = i;
                 break;
             }
@@ -97,6 +97,39 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.push = function (frame) {
         this.frames.push(frame);
         this.changed = true;
+    }
+
+    this.updateFrames = function () {
+        if (this.changed && this.frames.length > 0) {
+            bubbleSortArrayByProperty(this.frames, 'FRN');
+            this.size_Fragmented = this.frames[this.frames.length - 1].T_display - this.frames[0].T_display;    //we do not care about this (length is more meaningful)
+            this.duration_Fragmented = this.size_Fragmented * frame_duration;   //only used here
+            this.calculateSizeContinuous();
+            this.changed = false;
+        }
+    }
+
+    this.calculateSizeContinuous = function () {
+        if (this.frames.length > 1) {
+            if (this.frames[0].FRN != m_next_FRN) {
+                this.size_Continuous = 0;
+            } else {
+                var sz = 0, nfrn = m_next_FRN;
+                for (var i = 0; i < this.frames.length; i++) {
+                    if (nfrn == this.frames[i].FRN) {
+                        sz++;
+                        nfrn++;
+                    } else {
+                        break;
+                    }
+                }
+                this.size_Continuous = sz;
+            }
+        } else {
+            this.size_Continuous = 0;
+        }
+
+        this.duration_Continuous = this.size_Continuous * frame_duration;
     }
 
     this.updateStatus = function () {
@@ -264,17 +297,10 @@ function do_analysis(filenames_in, number_of_streams) {
             }
             */
 
-            //Re-sort MBuff
-            if (Mbuff_changed && Mbuff.length > 0) {
-                bubbleSortArrayByProperty(Mbuff, 'FRN');
-                //calculate new fragment MBuff size
-                Mbuff_f_duration = (Mbuff[Mbuff.length - 1].T_display - Mbuff[0].T_display);
-                if (Mbuff.length > 1) {
-                    //calculate new continuous MBuff size
-                    Mbuff_c_size = calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size);
-                    //calculate new continuous MBuff duration
-                    Mbuff_c_duration = Mbuff_c_size * frame_duration;
-                }
+            //re-sort frames in buffer
+            for (var i = 0; i < number_of_streams; i++) {
+                buffers[i].updateFrames();
+                //TODO check if buffer status and stream next frame is changed on push
             }
 
             //previously (for initial playback): if(current_mbuff_status == 'NEW' && Mbuff[0].FRN != 0){
