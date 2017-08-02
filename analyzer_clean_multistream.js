@@ -298,21 +298,34 @@ function do_analysis(filenames_in, number_of_streams) {
             }
             */
 
-            //re-sort frames in buffer and update sizes
+
             for (var i = 0; i < number_of_streams; i++) {
+                //re-sort frames in buffer and update sizes
                 buffers[i].updateFrames();
                 //TODO check if buffer status and stream next frame is changed on push
+                //set buffer status ('NEW', 'READY', 'BUFFERING')
+                buffers[i].updateStatus();
             }
-            continue;
-            //set buffer status ('NEW', 'READY', 'BUFFERING')
-            current_mbuff_status = calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i);
-
-
 
             /**
              * Check if updated buffers (both) should start playback
              */
-            if (current_vbuff_status == 'PLAYING' || current_vbuff_status == 'READY') {
+            var metaBuffersReady = true;
+            for (var i = 0; i < number_of_streams; i++) {
+                //check if all buffers are ready to play
+                if (buffers[i].status == 'NEW' || buffers[i].status == 'BUFFERING') {
+                    metaBuffersReady = false;
+                    break;
+                }
+            }
+
+            if (metaBuffersReady && ((VBuff.status == 'PLAYING') || (VBuff.status == 'READY'))) {
+                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
+                VBuff.status = 'PLAYING';
+                for (var i = 0; i < number_of_streams; i++) {
+                    buffers[i].status = 'PLAYING';
+                }
+            }
                 current_vbuff_status = 'PLAYING';
                 if (v_t_play == 0) {
                     v_t_play = incoming_vframe.T_display;
