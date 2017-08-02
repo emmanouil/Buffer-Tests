@@ -67,7 +67,24 @@ function Stream(filename, id) {
     this.nextFrameIndex = 0;
 }
 
+function Buffer(id, type = 'META', Binit = 0) {
+    this.frames = [];
+    this.size_Continuous = 0;
+    this.size_Fragmented = 0;
+    this.duration_Continuous = 0;
+    this.duration_Fragmented = 0;
+    this.ID = id;
+    this.changed = false;
+    this.status = 'NEW';
+    this.type = type
+    this.Binit = Binit;
+    this.Bplay = 0;
+
 function do_analysis(file_in) {
+
+}
+
+
 
     //Variables
     //holder of analysis results
