@@ -275,7 +275,7 @@ function do_analysis(filenames_in, number_of_streams) {
         var T_zero = video_ordered[0].T_display;    //first vframe timestamp
         var T_end = T_zero + TEST_DURATION;
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
-        var incoming_vframe = video_ordered[0];
+        incoming_vframe = video_ordered[0]; //TODO this is global and old
         var incoming_mframes = [];
         var current_vbuff_status = 'NEW';
 
@@ -415,11 +415,14 @@ function do_analysis(filenames_in, number_of_streams) {
             //ENDOF
 
             //TODO handle incoming_vframe
+
             /**
              * mean, min, man - delay estimations (from Mbuffer)
              */
-            if (Mbuff.length > 0) {
+            if (buffers[0].frames.length > 0) {
                 //1. FRN-agnostic
+                /*
+                //TODO might need the estimations
                 if (Mbuff.length > 0) {
                     var dd = 0;
                     Mbuff.forEach(function (element) {
@@ -431,6 +434,7 @@ function do_analysis(filenames_in, number_of_streams) {
                     D_mean_buffer = dd / Mbuff.length;
                     //console.log(current_vframe.T_display + ' DM 1 : ' + D_mean_buffer.toFixed(2) + '  min: ' + D_min_observed.toFixed(2) + ' max: ' + D_max_observed.toFixed(2));
                 }
+                */
                 //2. FRN-aware
                 //Not used - Less accurate
                 /*
@@ -473,7 +477,7 @@ function do_analysis(filenames_in, number_of_streams) {
             per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
         }
 
-        analysis_results.push({ 'Mbuffsize': mbuff_thres, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': Mbuff_c_size, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
+        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
 
     }
     return analysis_results;
