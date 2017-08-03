@@ -344,8 +344,9 @@ function do_analysis(filenames_in, number_of_streams) {
                 buffers[i].updateStatus();
             }
 
+            //STARTOF Playback conditions check
             /**
-             * Check if updated buffers (both) should start playback
+             * Check if updated buffers (both) could start playback
              */
             var metaBuffersReady = true;
             for (var i = 0; i < number_of_streams; i++) {
@@ -363,27 +364,38 @@ function do_analysis(filenames_in, number_of_streams) {
                     buffers[i].status = 'PLAYING';
                 }
             }
-                current_vbuff_status = 'PLAYING';
-                if (v_t_play == 0) {
-                    v_t_play = incoming_vframe.T_display;
-                }
-            }
-            if (current_mbuff_status == 'PLAYING' || current_mbuff_status == 'READY') {
-                if (Mbuff[0].T_display <= Vbuff[0].T_display) {
-                    if (m_t_play == 0) {
-                        m_t_play = incoming_vframe.T_display;
-                        init_t_diff = m_t_play - v_t_play;
-                    }
-                    current_mbuff_status = 'PLAYING';
-                    Mbuff_changed = true;
-                }
-            }
+            //ENDOF
 
+            //TODO: this
+            /*
             if (DELAYED_START) {
                 if ((current_vbuff_status == 'READY' || current_vbuff_status == 'PLAYING') && current_mbuff_status != 'PLAYING' && Vbuff[0].FRN == 0) {
                     current_vbuff_status = 'READY';
                 }
             }
+            */
+
+            //STARTOF logging times
+            if (VBuff.status == 'PLAYING') {
+                if (v_t_play == 0) {
+                    v_t_play = VBuff.frames[VBuff.frames.length - 1].T_display;
+                }
+            }
+
+            if (m_t_play == 0 && buffers[0].status == 'PLAYING') {
+                m_t_play = VBuff.frames[VBuff.frames.length - 1].T_display;;
+                init_t_diff = VBuff.frames[VBuff.frames.length - 1].T_display; - v_t_play;
+            }
+
+            //ENDOF
+            //STARTOF emptying qeues
+
+            //ENDOF
+
+
+            continue;
+
+
 
             //removed qeued element
             if (current_vbuff_status == 'PLAYING') {
