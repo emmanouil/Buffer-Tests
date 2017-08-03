@@ -366,7 +366,7 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             if (metaBuffersReady && ((VBuff.status == 'PLAYING') || (VBuff.status == 'READY'))) {
-                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
+//                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
                 VBuff.status = 'PLAYING';
                 for (var i = 0; i < number_of_streams; i++) {
                     buffers[i].status = 'PLAYING';
