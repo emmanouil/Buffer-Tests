@@ -632,52 +632,6 @@ function calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size) {
 
 
 
-/**
- * Calculates status of the video buffer ('NEW', 'READY', 'BUFFERING')
- * @param {String} current_vbuff_status current status of video buffer
- * @param {obj} incoming_vframe most recently "received" video frame (and pushed in the buffer)
- * @param {obj} VBuff the whole video buffer object as is when function is called
- * @param {int} vbuff_thres initial playback threshold of video stream (to compare with buffer)
- * @returns {String} status of the video buffer ('NEW', 'READY', 'BUFFERING')
- */
-function calculateMBuffStatus(current_mbuff_status, Mbuff, mbuff_thres, Mbuff_c_duration, incoming_vframe, METRICS_M, video_ordered, v_i) {
-
-    var cms = current_mbuff_status;
-
-    if (cms == 'NEW') {
-        METRICS_M.m_i_frames++;
-        if (mbuff_thres <= Mbuff_c_duration) {   //check if we are on playback levels
-            cms = 'READY';
-            console.log(mbuff_thres + " META READY @ " + incoming_vframe.T_display)
-        }
-    } else if (cms == 'PLAYING') {
-        if (Mbuff.length == 0 || Mbuff_c_duration == 0) {
-            cms = 'BUFFERING';
-            if (METRICS_M.m_r_first == 0) {
-                METRICS_M.m_r_first = incoming_vframe.T_display;
-            }
-            METRICS_M.m_r_events++;
-            METRICS_M.m_r_frames++;
-            console.log("META BUFFERING")
-        }
-    } else if (cms == 'BUFFERING') {
-        METRICS_M.m_r_frames++;
-        if (Mbuff_c_duration > 0 && Mbuff.length > 0) {
-            cms = 'READY';
-            console.log(mbuff_thres + " META READY @ " + incoming_vframe.T_display)
-        }
-    }
-    if (cms == 'BUFFERING') {
-        METRICS_M.m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
-    }
-
-    return cms;
-
-}
-
-
-
-
 
 
 
