@@ -558,43 +558,6 @@ function resultsToFile(res_obj_in, type) {
     return res_to_file;
 }
 
-/**
- * Calculates status of the video buffer ('NEW', 'READY', 'BUFFERING')
- * @param {String} current_vbuff_status current status of video buffer
- * @param {obj} incoming_vframe most recently "received" video frame (and pushed in the buffer)
- * @param {obj} VBuff the whole video buffer object as is when function is called
- * @param {int} vbuff_thres initial playback threshold of video stream (to compare with buffer)
- * @returns {String} status of the video buffer ('NEW', 'READY', 'BUFFERING')
- */
-function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuff_thres) {
-
-    var cvs = current_vbuff_status;
-    var cvf = incoming_vframe;
-    var vbf = VBuff;
-    var vbt = vbuff_thres;
-
-    if (cvs == 'NEW') {
-
-        if (vbt <= (vbf[vbf.length - 1].T_display - vbf[0].T_display)) {   //check if we are on playback levels
-            cvs = 'READY';
-            console.log("VIDEO READY @ " + cvf.T_display);
-        }
-    } else if (cvs == 'PLAYING') {
-        if (vbf.length == 0) {
-            cvs = 'BUFFERING';
-            console.log("VIDEO BUFFERING");
-        }
-    } else if (cvs == 'BUFFERING') {
-        if (vbf.length > 0) {
-            cvs = 'READY';
-            console.log("VIDEO READY @ " + cvf.T_display);
-        }
-    }
-    return cvs;
-
-}
-
-
 
 
 
