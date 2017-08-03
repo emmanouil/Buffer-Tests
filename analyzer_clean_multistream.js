@@ -595,42 +595,6 @@ function calculateVBuffStatus(current_vbuff_status, incoming_vframe, VBuff, vbuf
 }
 
 
-/**
- * Calculates size of the meta buffer (in continuous frames)
- * @param {obj} Mbuff the whole meta buffer object as is when function is called
- * @param {obj} dela_list list of meta frames (ordered by FRN)
- * @param {int} m_next_FRN expected FRN
- * @param {int} Mbuff_c_size size (in frames) of the meta buffer when calling the function
- * @returns {int} continuous size (in frames) of the meta buffer
- */
-function calculateMBuffSize(Mbuff, dela_list, m_next_FRN, Mbuff_c_size) {
-
-    var mbs = Mbuff_c_size;
-
-    if (Mbuff.length > 1) {
-        var d_index = 0;
-        for (var i_c = 0; i_c < dela_list.length; i_c++) {
-            if (dela_list[i_c].FRN == m_next_FRN) {
-                d_index = i_c;
-                break;
-            }
-        }
-
-        var b_index = 0;
-        mbs = 0;
-        while ((b_index < Mbuff.length) && (m_next_FRN == Mbuff[0].FRN) && (dela_list[d_index].FRN == Mbuff[b_index].FRN)) {
-            mbs++;
-            //Mbuff_c_duration = (Mbuff[b_index].T_display - Mbuff[0].T_display);   //m_next_FRN    //Old way - would show 0 when 1 frame in buffer
-            b_index++;
-            d_index++;
-        }
-    }
-
-    return mbs;
-
-}
-
-
 
 
 
