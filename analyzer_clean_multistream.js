@@ -99,6 +99,14 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         this.changed = true;
     }
 
+/**
+ * removes and returns first element in buffer
+ */
+    this.pop = function (frame) {
+        this.changed = true;
+        return frames.shift();
+    }
+
     this.updateFrames = function () {
         if (this.changed && this.frames.length > 0) {
             bubbleSortArrayByProperty(this.frames, 'FRN');
