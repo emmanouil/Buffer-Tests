@@ -398,28 +398,23 @@ function do_analysis(filenames_in, number_of_streams) {
             //ENDOF
             //STARTOF emptying qeues
 
-            //ENDOF
-
-
-            continue;
 
 
 
-            //removed qeued element
-            if (current_vbuff_status == 'PLAYING') {
-                if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
-                    v_curr_Frame = Vbuff.shift();
-                    v_next_FRN = v_curr_Frame.FRN + 1;
+            if (VBuff.status == 'PLAYING') {
+                //TODO something like     if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
+                v_next_FRN = VBuff.pop().FRN + 1; //TODO remove this (or move in obj) - so far used only for logging
+            }
+            if (buffers[0].status == 'PLAYING') {
+                for (var i = 0; i < number_of_streams; i++) {
+                    m_next_FRN = buffers[i].pop().FRN + 1;  //TODO remove m_next_FRN (NOTICE used in function)
+                    displayed_mframes++;
                 }
             }
-            if (current_mbuff_status == 'PLAYING') {
-                m_curr_Frame = Mbuff.shift();
-                m_next_FRN = m_curr_Frame.FRN + 1;
-                Mbuff_changed = true;
-                //console.log('Displayed: '+ m_curr_Frame.FRN+'    for'+v_curr_Frame.FRN);
-                displayed_mframes++;
-            }
 
+            //ENDOF
+
+            //TODO handle incoming_vframe
             /**
              * mean, min, man - delay estimations (from Mbuffer)
              */
