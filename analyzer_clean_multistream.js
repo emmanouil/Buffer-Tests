@@ -99,12 +99,12 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         this.changed = true;
     }
 
-/**
- * removes and returns first element in buffer
- */
-    this.pop = function (frame) {
+    /**
+     * removes and returns first element in buffer
+     */
+    this.pop = function () {
         this.changed = true;
-        return frames.shift();
+        return this.frames.shift();
     }
 
     this.updateFrames = function () {
