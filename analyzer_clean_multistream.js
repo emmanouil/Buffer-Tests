@@ -256,6 +256,9 @@ function do_analysis(filenames_in, number_of_streams) {
         //holder of simulated buffers
         var buffers = [];
         //TODO reset Stream objects
+        for(var i =0; i<number_of_streams; i++){
+            streams[i].nextFrameIndex = 0;
+        }
 
         /**
          * Setup simulation environment for specific sample file
