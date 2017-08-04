@@ -388,6 +388,7 @@ function do_analysis(filenames_in, number_of_streams) {
             */
 
             //STARTOF logging times
+            //TODO bug in VBuff.status == 'PLAYING', when MBuff is re-buffering
             if (VBuff.status == 'PLAYING') {
                 if (v_t_play == 0) {
                     v_t_play = VBuff.frames[VBuff.frames.length - 1].T_display;
@@ -395,7 +396,7 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             if (m_t_play == 0 && buffers[0].status == 'PLAYING') {
-                m_t_play = VBuff.frames[VBuff.frames.length - 1].T_display;;
+                m_t_play = incoming_vframe.T_display;;
                 init_t_diff = VBuff.frames[VBuff.frames.length - 1].T_display; - v_t_play;
             }
 
