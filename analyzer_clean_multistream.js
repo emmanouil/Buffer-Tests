@@ -172,22 +172,22 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             } else if (cms == 'PLAYING') {
                 if (this.frames.length == 0 || this.size_Continuous == 0) {
                     cms = 'BUFFERING';
-                    /*if (METRICS_M.m_r_first == 0) {
+                    if (METRICS_M.m_r_first == 0) {
                         METRICS_M.m_r_first = incoming_vframe.T_display;
                     }
                     METRICS_M.m_r_events++;
-                    METRICS_M.m_r_frames++;*/
+                    METRICS_M.m_r_frames++;
                     console.log("META BUFFERING")
                 }
             } else if (cms == 'BUFFERING') {
-                //METRICS_M.m_r_frames++;
+                METRICS_M.m_r_frames++;
                 if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
                     cms = 'READY';
                     console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
                 }
             }
             if (cms == 'BUFFERING') {
-                //METRICS_M.m_r_duration += (video_ordered[v_i].T_display - video_ordered[v_i - 1].T_display);
+                METRICS_M.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - frame_duration));
             }
             this.status = cms;
         } else {
@@ -263,7 +263,8 @@ function do_analysis(filenames_in, number_of_streams) {
         /**
          * Setup simulation environment for specific sample file
          */
-        var METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+        //TODO no globals (like METRICS_M)
+        METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
         var dropped_mframes = 0, displayed_mframes = 0;
         var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
