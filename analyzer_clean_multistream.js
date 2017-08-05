@@ -65,7 +65,7 @@ function Stream(filename, id) {
     this.frames_Tarr_ordered = this.frames_FRN_ordered.slice(0);
     bubbleSortArrayByProperty(this.frames_Tarr_ordered, 'T_arrival');
     this.ID = id;
-    this.nextFrameIndex = 0;    //TODO reset on new simulation
+    this.nextFrameIndex = 0;    //holds index of next frame to arrive on frames_Tarr_ordered - reset on new simulation
 }
 
 function Buffer(id, stream, type = 'META', Binit = 0) {
@@ -236,8 +236,7 @@ function do_analysis(filenames_in, number_of_streams) {
     //holder of analysis results
     var analysis_results = [];
     //incoming video frames
-    var video_ordered = tl.readJSON(VIDEO_IN_FILE); //TODO objectify
-    var video_stream = (new Stream((VIDEO_IN_FILE), -1));   //TODO i.e. use this instead
+    var video_stream = (new Stream((VIDEO_IN_FILE), -1));
     //incoming extra frames
     for (var i = 0; i < number_of_streams; i++) {
         streams.push(new Stream((filenames_in[i]), i));
@@ -245,7 +244,7 @@ function do_analysis(filenames_in, number_of_streams) {
 
     //frame duration (should be the same for extra and video frames)
     //TODO frame_duration is global
-    frame_duration = video_ordered[1].T_display - video_ordered[0].T_display; //TODO uniform format
+    frame_duration = video_stream.frames_Tarr_ordered[1].T_display - video_stream.frames_Tarr_ordered[0].T_display; //TODO uniform format
 
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
@@ -256,7 +255,7 @@ function do_analysis(filenames_in, number_of_streams) {
         //holder of simulated buffers
         var buffers = [];
         //TODO reset Stream objects
-        for(var i =0; i<number_of_streams; i++){
+        for (var i = 0; i < number_of_streams; i++) {
             streams[i].nextFrameIndex = 0;
         }
 
@@ -276,10 +275,10 @@ function do_analysis(filenames_in, number_of_streams) {
             tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
         }
 
-        var T_zero = video_ordered[0].T_display;    //first vframe timestamp
+        var T_zero = video_stream.frames_Tarr_ordered[0].T_display;    //first vframe timestamp
         var T_end = T_zero + TEST_DURATION;
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
-        incoming_vframe = video_ordered[0]; //TODO this is global and old
+        incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
         var incoming_mframes = [];
         var current_vbuff_status = 'NEW';
 
@@ -300,9 +299,9 @@ function do_analysis(filenames_in, number_of_streams) {
          * Actual simulation start - by iterating through vframes
          */
 
-        for (var v_i = 0; v_i < video_ordered.length; v_i++) {
+        for (var v_i = 0; v_i < video_stream.frames_Tarr_ordered.length; v_i++) {
 
-            if (TEST_DURATION < (incoming_vframe.T_display - video_ordered[0].T_display)) {     //check if exceeded test duration
+            if (TEST_DURATION < (incoming_vframe.T_display - video_stream.frames_Tarr_ordered[0].T_display)) {     //check if exceeded test duration
                 //we do not calculate it since it is equal to m_r_duration
                 //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
                 break;
@@ -314,9 +313,9 @@ function do_analysis(filenames_in, number_of_streams) {
              * Check arriving vframes and VBuff status
              */
             //select current incoming vframe
-            incoming_vframe = video_ordered[v_i];
+            incoming_vframe = video_stream.frames_Tarr_ordered[v_i];
             //push current incoming vframe in Vbuffer    
-            VBuff.push(video_ordered[v_i]);
+            VBuff.push(video_stream.frames_Tarr_ordered[v_i]);
             //set buffer status ('NEW', 'READY', 'BUFFERING')
             //TODO: delete this - moved in buffer function
             //current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, VIDEO_BUFFER_PLAY_THRES);
@@ -370,7 +369,7 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             if (metaBuffersReady && ((VBuff.status == 'PLAYING') || (VBuff.status == 'READY'))) {
-//                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
+                //                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
                 VBuff.status = 'PLAYING';
                 for (var i = 0; i < number_of_streams; i++) {
                     buffers[i].status = 'PLAYING';
