@@ -83,8 +83,10 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.stream = stream;
 
     this.receiveFrames = function (timeNow) {
-        for (var i = this.stream.nextFrameIndex; i < this.stream.frames_Tarr_ordered.length; i++) {
-            var incoming_frame = this.stream.frames_Tarr_ordered[i];
+        var incoming_frame;
+        var i = 0;
+        for (i = this.stream.nextFrameIndex; i < this.stream.frames_Tarr_ordered.length; i += 1) {
+            incoming_frame = this.stream.frames_Tarr_ordered[i];
             if (incoming_frame.T_arrival <= timeNow) {
                 this.push(incoming_frame);
             } else {
@@ -92,12 +94,12 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 break;
             }
         }
-    }
+    };
 
     this.push = function (frame) {
         this.frames.push(frame);
         this.changed = true;
-    }
+    };
 
     /**
      * removes and returns first element in buffer
@@ -105,7 +107,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.pop = function () {
         this.changed = true;
         return this.frames.shift();
-    }
+    };
 
     this.updateFrames = function () {
         if (this.changed && this.frames.length > 0) {
@@ -115,18 +117,20 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             this.calculateSizeContinuous();
             this.changed = false;
         }
-    }
+    };
 
     this.calculateSizeContinuous = function () {
         if (this.frames.length > 0) {
             if (this.frames[0].FRN != m_next_FRN) {
                 this.size_Continuous = 0;
             } else {
-                var sz = 0, nfrn = m_next_FRN;
-                for (var i = 0; i < this.frames.length; i++) {
+                var sz = 0;
+                var nfrn = m_next_FRN;
+                var i;
+                for (i = 0; i < this.frames.length; i += 1) {
                     if (nfrn == this.frames[i].FRN) {
-                        sz++;
-                        nfrn++;
+                        sz += 1;
+                        nfrn += 1;
                     } else {
                         break;
                     }
@@ -138,7 +142,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         }
 
         this.duration_Continuous = this.size_Continuous * frame_duration;
-    }
+    };
 
     this.updateStatus = function () {
         if (this.type == 'VIDEO') {
@@ -164,7 +168,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             var cms = this.status;
 
             if (cms == 'NEW') {
-                //METRICS_M.m_i_frames++;
+                //METRICS_M.m_i_frames+=1;
                 if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
                     cms = 'READY';
                     console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
@@ -175,12 +179,12 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                     if (METRICS_M.m_r_first == 0) {
                         METRICS_M.m_r_first = incoming_vframe.T_display;
                     }
-                    METRICS_M.m_r_events++;
-                    METRICS_M.m_r_frames++;
+                    METRICS_M.m_r_events += 1;
+                    METRICS_M.m_r_frames += 1;
                     console.log("META BUFFERING")
                 }
             } else if (cms == 'BUFFERING') {
-                METRICS_M.m_r_frames++;
+                METRICS_M.m_r_frames += 1;
                 if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
                     cms = 'READY';
                     console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
@@ -194,7 +198,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             console.error('UNKNOWN BUFFER TYPE');
         }
 
-    }
+    };
 }
 
 
@@ -212,10 +216,10 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
  * 
  */
 function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
-    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t++) {
+    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t += 1) {
         var files_in = [];
         //build file-in list
-        for (var i_x = i_t; i_x < number_of_streams + i_t; i_x++) {
+        for (var i_x = i_t; i_x < number_of_streams + i_t; i_x += 1) {
             files_in.push(files_obj_in.files[i_x].File);
         }
         var result = do_analysis(files_in, number_of_streams);
@@ -238,7 +242,7 @@ function do_analysis(filenames_in, number_of_streams) {
     //incoming video frames
     var video_stream = (new Stream((VIDEO_IN_FILE), -1));
     //incoming extra frames
-    for (var i = 0; i < number_of_streams; i++) {
+    for (var i = 0; i < number_of_streams; i += 1) {
         streams.push(new Stream((filenames_in[i]), i));
     }
 
@@ -255,7 +259,7 @@ function do_analysis(filenames_in, number_of_streams) {
         //holder of simulated buffers
         var buffers = [];
         //TODO reset Stream objects
-        for (var i = 0; i < number_of_streams; i++) {
+        for (var i = 0; i < number_of_streams; i += 1) {
             streams[i].nextFrameIndex = 0;
         }
 
@@ -281,7 +285,7 @@ function do_analysis(filenames_in, number_of_streams) {
         incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
         var current_vbuff_status = 'NEW';
 
-        for (var i = 0; i < number_of_streams; i++) {
+        for (var i = 0; i < number_of_streams; i += 1) {
             buffers.push(new Buffer(i, streams[i], 'META', mbuff_thres));
         }
 
@@ -297,7 +301,7 @@ function do_analysis(filenames_in, number_of_streams) {
          * Actual simulation start - by iterating through vframes
          */
 
-        for (var v_i = 0; v_i < video_stream.frames_Tarr_ordered.length; v_i++) {
+        for (var v_i = 0; v_i < video_stream.frames_Tarr_ordered.length; v_i += 1) {
 
             if (TEST_DURATION < (incoming_vframe.T_display - video_stream.frames_Tarr_ordered[0].T_display)) {     //check if exceeded test duration
                 //we do not calculate it since it is equal to m_r_duration
@@ -322,7 +326,7 @@ function do_analysis(filenames_in, number_of_streams) {
              * Check arriving mframes and MBuff status
              */
             //select current incoming mframe
-            for (var i = 0; i < number_of_streams; i++) {
+            for (var i = 0; i < number_of_streams; i += 1) {
                 buffers[i].receiveFrames(incoming_vframe.T_display)
                 //TODO check if buffer status and stream next frame is changed on push
             }
@@ -333,7 +337,7 @@ function do_analysis(filenames_in, number_of_streams) {
                 while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
                     //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
                     Mbuff.shift();
-                    dropped_mframes++;
+                    dropped_mframes+=1;
                     Mbuff_changed = true;
                 }
                 if (Vbuff[0].FRN != 0) {
@@ -343,7 +347,7 @@ function do_analysis(filenames_in, number_of_streams) {
             */
 
 
-            for (var i = 0; i < number_of_streams; i++) {
+            for (var i = 0; i < number_of_streams; i += 1) {
                 //re-sort frames in buffer and update sizes
                 buffers[i].updateFrames();
                 //TODO check if buffer status and stream next frame is changed on push
@@ -356,7 +360,7 @@ function do_analysis(filenames_in, number_of_streams) {
              * Check if updated buffers (both) could start playback
              */
             var metaBuffersReady = true;
-            for (var i = 0; i < number_of_streams; i++) {
+            for (var i = 0; i < number_of_streams; i += 1) {
                 //check if all buffers are ready to play
                 if (buffers[i].status == 'NEW' || buffers[i].status == 'BUFFERING') {
                     metaBuffersReady = false;
@@ -367,7 +371,7 @@ function do_analysis(filenames_in, number_of_streams) {
             if (metaBuffersReady && ((VBuff.status == 'PLAYING') || (VBuff.status == 'READY'))) {
                 //                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
                 VBuff.status = 'PLAYING';
-                for (var i = 0; i < number_of_streams; i++) {
+                for (var i = 0; i < number_of_streams; i += 1) {
                     buffers[i].status = 'PLAYING';
                 }
             }
@@ -406,9 +410,9 @@ function do_analysis(filenames_in, number_of_streams) {
                 v_next_FRN = VBuff.pop().FRN + 1; //TODO remove this (or move in obj) - so far used only for logging
             }
             if (buffers[0].status == 'PLAYING') {
-                for (var i = 0; i < number_of_streams; i++) {
+                for (var i = 0; i < number_of_streams; i += 1) {
                     m_next_FRN = buffers[i].pop().FRN + 1;  //TODO remove m_next_FRN (NOTICE used in function)
-                    displayed_mframes++;
+                    displayed_mframes += 1;
                 }
             }
 
@@ -446,7 +450,7 @@ function do_analysis(filenames_in, number_of_streams) {
                         Dmean = -2
                     }else{
                         var dd =0;
-                        for(var i =1; i<Mbuff.length; i++){
+                        for(var i =1; i<Mbuff.length; i+=1){
                             var element = Mbuff[i];
                             if(element.FRN == Mbuff[i-1].FRN+1){
                                 dd += element.T_arrival - element.T_display;
@@ -530,8 +534,8 @@ function resultsToFile(res_obj_in, type) {
     //Object.assign({},res_to_file_n);
     var runs = 0;
     res_obj_in.results.forEach(function (element, index, array) {
-        runs++;
-        for (var i_i = 0; i_i < element.length; i_i++) {
+        runs += 1;
+        for (var i_i = 0; i_i < element.length; i_i += 1) {
             var a = element[i_i];
             var tmp_index = tl.findIndexByProperty(res_to_file, 'Mbuffsize', a.Mbuffsize);
             if (tmp_index > 0) {
@@ -576,7 +580,7 @@ function bubbleSortArray(array, index) {
 
     do {
         swapped = false;
-        for (var i = 0; i < array.length - 1; i++) {
+        for (var i = 0; i < array.length - 1; i += 1) {
             if (array[i][index] > array[i + 1][index]) {
                 var temp = array[i];
                 array[i] = array[i + 1];
@@ -599,7 +603,7 @@ function bubbleSortArrayByProperty(array, property) {
 
     do {
         swapped = false;
-        for (var i = 0; i < array.length - 1; i++) {
+        for (var i = 0; i < array.length - 1; i += 1) {
             if (array[i][property] > array[i + 1][property]) {
                 var temp = array[i];
                 array[i] = array[i + 1];
