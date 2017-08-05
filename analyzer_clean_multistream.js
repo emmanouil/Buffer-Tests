@@ -145,17 +145,17 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             if (this.status == 'NEW') {
                 if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
                     this.status = 'READY';
-                    console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                    console.log(this.type + " " + this.ID + " READY @ " + incoming_vframe.T_display);
                 }
             } else if (this.status == 'PLAYING') {
                 if (this.frames.length == 0) {
                     this.status = 'BUFFERING';
-                    console.log(this.type + " " + this.ID + " BUFFERING @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                    console.log(this.type + " " + this.ID + " BUFFERING @ " + incoming_vframe.T_display);
                 }
             } else if (this.status == 'BUFFERING') {
                 if (this.frames.length > 0) {
                     this.status = 'READY';
-                    console.log(this.type + " " + this.ID + " READY @ " + this.frames.length);    //TODO: replace with time of incoming frame
+                    console.log(this.type + " " + this.ID + " READY @ " + incoming_vframe.T_display);
                 }
             }
         }
@@ -167,7 +167,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 //METRICS_M.m_i_frames++;
                 if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
                     cms = 'READY';
-                    console.log(this.Binit + " META READY @ " + this.frames.length)
+                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
                 }
             } else if (cms == 'PLAYING') {
                 if (this.frames.length == 0 || this.size_Continuous == 0) {
