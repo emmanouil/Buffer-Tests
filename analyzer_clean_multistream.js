@@ -168,10 +168,10 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             var cms = this.status;
 
             if (cms == 'NEW') {
-                METRICS_M.m_i_frames+=1;
+                METRICS_M.m_i_frames += 1;
                 if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
                     cms = 'READY';
-                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
+                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
                 }
             } else if (cms == 'PLAYING') {
                 if (this.frames.length == 0 || this.size_Continuous == 0) {
@@ -181,13 +181,13 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                     }
                     METRICS_M.m_r_events += 1;
                     METRICS_M.m_r_frames += 1;
-                    console.log("META BUFFERING")
+                    console.log("META BUFFERING");
                 }
             } else if (cms == 'BUFFERING') {
                 METRICS_M.m_r_frames += 1;
                 if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
                     cms = 'READY';
-                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display)
+                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
                 }
             }
             if (cms == 'BUFFERING') {
@@ -216,13 +216,17 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
  * 
  */
 function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
-    for (var i_t = 0; i_t < files_obj_in.fileslength; i_t += 1) {
-        var files_in = [];
+    var i_t;
+    var i_x;
+    var files_in = [];
+    var result;
+    for (i_t = 0; i_t < files_obj_in.fileslength; i_t += 1) {
+        files_in = [];
         //build file-in list
-        for (var i_x = i_t; i_x < number_of_streams + i_t; i_x += 1) {
+        for (i_x = i_t; i_x < number_of_streams + i_t; i_x += 1) {
             files_in.push(files_obj_in.files[i_x].File);
         }
-        var result = do_analysis(files_in, number_of_streams);
+        result = do_analysis(files_in, number_of_streams);
         res_obj_out.results.push(result);
     }
 }
