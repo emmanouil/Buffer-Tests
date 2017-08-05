@@ -1,5 +1,5 @@
 //TODOs (high levels)
-//check META READY @ vs VIDEO READY @ timing 
+//check META READY @ vs VIDEO READY @ timing
 
 //NEW NEW
 //imports
@@ -77,7 +77,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     this.ID = id;
     this.changed = false;
     this.status = 'NEW';
-    this.type = type
+    this.type = type;
     this.Binit = Binit;
     this.Bplay = 0;
     this.stream = stream;
@@ -279,7 +279,6 @@ function do_analysis(filenames_in, number_of_streams) {
         var T_end = T_zero + TEST_DURATION;
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
         incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
-        var incoming_mframes = [];
         var current_vbuff_status = 'NEW';
 
         for (var i = 0; i < number_of_streams; i++) {
@@ -292,7 +291,6 @@ function do_analysis(filenames_in, number_of_streams) {
         var v_curr_Frame = {};
         m_next_FRN = 0; //next FRN of meta-frame to be played //TODO this is global
         var v_next_FRN = 0; //next FRN of vid-frame to be played
-        //        var incoming_mframe = dela_Tarr_ordered[m_index]; //todo delete this
         var current_mbuff_status = 'NEW';
 
         /**
@@ -317,8 +315,6 @@ function do_analysis(filenames_in, number_of_streams) {
             //push current incoming vframe in Vbuffer    
             VBuff.push(video_stream.frames_Tarr_ordered[v_i]);
             //set buffer status ('NEW', 'READY', 'BUFFERING')
-            //TODO: delete this - moved in buffer function
-            //current_vbuff_status = calculateVBuffStatus(current_vbuff_status, incoming_vframe, Vbuff, VIDEO_BUFFER_PLAY_THRES);
             VBuff.updateStatus();
 
 
