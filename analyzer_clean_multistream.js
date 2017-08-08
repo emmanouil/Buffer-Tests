@@ -144,7 +144,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         this.duration_Continuous = this.size_Continuous * frame_duration;
     };
 
-    this.updateStatus = function () {
+    this.updateStatus = function (m) {
         if (this.type == 'VIDEO') {
             if (this.status == 'NEW') {
                 if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
@@ -168,7 +168,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             var cms = this.status;
 
             if (cms == 'NEW') {
-                METRICS_M.m_i_frames += 1;
+                m.m_i_frames += 1;
                 if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
                     cms = 'READY';
                     console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
@@ -176,22 +176,22 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             } else if (cms == 'PLAYING') {
                 if (this.frames.length == 0 || this.size_Continuous == 0) {
                     cms = 'BUFFERING';
-                    if (METRICS_M.m_r_first == 0) {
-                        METRICS_M.m_r_first = incoming_vframe.T_display;
+                    if (m.m_r_first == 0) {
+                        m.m_r_first = incoming_vframe.T_display;
                     }
-                    METRICS_M.m_r_events += 1;
-                    METRICS_M.m_r_frames += 1;
+                    m.m_r_events += 1;
+                    m.m_r_frames += 1;
                     console.log("META BUFFERING");
                 }
             } else if (cms == 'BUFFERING') {
-                METRICS_M.m_r_frames += 1;
+                m.m_r_frames += 1;
                 if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
                     cms = 'READY';
                     console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
                 }
             }
             if (cms == 'BUFFERING') {
-                METRICS_M.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - frame_duration));
+                m.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - frame_duration));
             }
             this.status = cms;
         } else {
@@ -311,7 +311,8 @@ function do_analysis(filenames_in, number_of_streams) {
          * Setup simulation environment for specific sample file
          */
         //TODO no globals (like METRICS_M)
-        METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+        var m = new Metrics();
+        //METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
         var dropped_mframes = 0, displayed_mframes = 0;
         var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
@@ -335,7 +336,6 @@ function do_analysis(filenames_in, number_of_streams) {
 
 
         var m_index = 0;
-        var m_curr_Frame = {};
         var v_curr_Frame = {};
         m_next_FRN = 0; //next FRN of meta-frame to be played //TODO this is global
         var v_next_FRN = 0; //next FRN of vid-frame to be played
@@ -363,7 +363,7 @@ function do_analysis(filenames_in, number_of_streams) {
             //push current incoming vframe in Vbuffer    
             VBuff.push(video_stream.frames_Tarr_ordered[v_i]);
             //set buffer status ('NEW', 'READY', 'BUFFERING')
-            VBuff.updateStatus();
+            VBuff.updateStatus(m);
 
 
             /**
@@ -396,7 +396,7 @@ function do_analysis(filenames_in, number_of_streams) {
                 buffers[i].updateFrames();
                 //TODO check if buffer status and stream next frame is changed on push
                 //set buffer status ('NEW', 'READY', 'BUFFERING')
-                buffers[i].updateStatus();
+                buffers[i].updateStatus(m);
             }
 
             //STARTOF Playback conditions check
@@ -518,14 +518,14 @@ function do_analysis(filenames_in, number_of_streams) {
 
         }
 
-        if (METRICS_M.m_r_first == 0) {
+        if (m.m_r_first == 0) {
             per_in_sync = 1.0;
         } else {
             var clean_duration = (TEST_DURATION - m_t_play);
-            per_in_sync = (METRICS_M.m_r_first - m_t_play) / clean_duration;
+            per_in_sync = (m.m_r_first - m_t_play) / clean_duration;
         }
 
-        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': METRICS_M.m_r_events, 'Frames': METRICS_M.m_r_frames, 'IFrames': METRICS_M.m_i_frames, 'Duration': METRICS_M.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': METRICS_M.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
+        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': m.m_r_events, 'Frames': m.m_r_frames, 'IFrames': m.m_i_frames, 'Duration': m.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': m.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
 
     }
     return analysis_results;
