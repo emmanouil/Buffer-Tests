@@ -65,6 +65,7 @@ function Stream(filename, id) {
     this.frames_Tarr_ordered = this.frames_FRN_ordered.slice(0);
     bubbleSortArrayByProperty(this.frames_Tarr_ordered, 'T_arrival');
     this.ID = id;
+    this.frame_duration = this.frames_FRN_ordered[1].T_display - this.frames_FRN_ordered[0].T_display;
     this.nextFrameIndex = 0;    //holds index of next frame to arrive on frames_Tarr_ordered - reset on new simulation
 }
 
@@ -113,7 +114,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
         if (this.changed && this.frames.length > 0) {
             bubbleSortArrayByProperty(this.frames, 'FRN');
             this.size_Fragmented = this.frames.length;    //we use length instead
-            this.duration_Fragmented = this.size_Fragmented * frame_duration;   //only used here
+            this.duration_Fragmented = this.size_Fragmented * this.stream.frame_duration;
             this.calculateSizeContinuous(s);
             this.changed = false;
         }
@@ -141,7 +142,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             this.size_Continuous = 0;
         }
 
-        this.duration_Continuous = this.size_Continuous * frame_duration;
+        this.duration_Continuous = this.size_Continuous * this.stream.frame_duration;
     };
 
     this.updateStatus = function (m) {
@@ -191,7 +192,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 }
             }
             if (cms == 'BUFFERING') {
-                m.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - frame_duration));
+                m.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - this.stream.frame_duration));
             }
             this.status = cms;
         } else {
@@ -338,9 +339,7 @@ function do_analysis(filenames_in, number_of_streams) {
     for (var i = 0; i < number_of_streams; i += 1) {
         streams.push(new Stream((filenames_in[i]), i));
     }
-    //frame duration (should be the same for extra and video frames)
-    //TODO frame_duration is global
-    frame_duration = video_stream.frames_Tarr_ordered[1].T_display - video_stream.frames_Tarr_ordered[0].T_display; //TODO uniform format
+    //TODO check frame duration located in Stream (should be the same for extra and video frames)
 
     //bubbleSortArray(dela_ordered, 4); //sort according to FRN
 
