@@ -338,7 +338,6 @@ function do_analysis(filenames_in, number_of_streams) {
     for (var i = 0; i < number_of_streams; i += 1) {
         streams.push(new Stream((filenames_in[i]), i));
     }
-
     //frame duration (should be the same for extra and video frames)
     //TODO frame_duration is global
     frame_duration = video_stream.frames_Tarr_ordered[1].T_display - video_stream.frames_Tarr_ordered[0].T_display; //TODO uniform format
