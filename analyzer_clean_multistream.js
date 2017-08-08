@@ -210,6 +210,8 @@ function Metrics() {
     this.m_r_first = 0;     //time (in ms) of first rebuffering occurance (since playback started)
     this.m_dropped_frames = 0;  //not used (not implemented get/set)
     this.m_displayed_frames = 0;
+    this.v_play_time = 0;   //initial (video) playback time logging
+    this.m_play_time = 0;   //initial (meta) playback time logging
 }
 
 Metrics.prototype = {
@@ -254,6 +256,18 @@ Metrics.prototype = {
     },
     set m_displayed_frames(num) {
         this.m_displayed_frames = num;
+    },
+    get v_play_time() {
+        return this.v_play_time;
+    },
+    set v_play_time(num) {
+        this.v_play_time = num;
+    },
+    get m_play_time() {
+        return this.m_play_time;
+    },
+    set m_play_time(num) {
+        this.m_play_time = num;
     }
 };
 
@@ -347,7 +361,6 @@ function do_analysis(filenames_in, number_of_streams) {
          */
         var m = new Metrics();
         var s = new Simulation();
-        var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
         //for resetting queues
         var dela_list = [];
@@ -462,14 +475,13 @@ function do_analysis(filenames_in, number_of_streams) {
             //STARTOF logging times
             //TODO bug in VBuff.status == 'PLAYING', when MBuff is re-buffering
             if (VBuff.status == 'PLAYING') {
-                if (v_t_play == 0) {
-                    v_t_play = VBuff.frames[VBuff.frames.length - 1].T_display;
+                if (m.v_play_time == 0) {
+                    m.v_play_time = VBuff.frames[VBuff.frames.length - 1].T_display;
                 }
             }
 
-            if (m_t_play == 0 && buffers[0].status == 'PLAYING') {
-                m_t_play = incoming_vframe.T_display;
-                init_t_diff = VBuff.frames[VBuff.frames.length - 1].T_display; - v_t_play;
+            if (m.m_play_time == 0 && buffers[0].status == 'PLAYING') {
+                m.m_play_time = incoming_vframe.T_display;
             }
 
             //ENDOF
@@ -550,11 +562,11 @@ function do_analysis(filenames_in, number_of_streams) {
         if (m.m_r_first == 0) {
             per_in_sync = 1.0;
         } else {
-            var clean_duration = (TEST_DURATION - m_t_play);
-            per_in_sync = (m.m_r_first - m_t_play) / clean_duration;
+            var clean_duration = (TEST_DURATION - m.m_play_time);
+            per_in_sync = (m.m_r_first - m.m_play_time) / clean_duration;
         }
 
-        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': m.m_r_events, 'Frames': m.m_r_frames, 'IFrames': m.m_i_frames, 'Duration': m.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': m.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': m.m_displayed_frames, 'Dropped': m.m_dropped_frames });
+        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': m.m_r_events, 'Frames': m.m_r_frames, 'IFrames': m.m_i_frames, 'Duration': m.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m.m_play_time, 'FirstRT': m.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': m.m_displayed_frames, 'Dropped': m.m_dropped_frames });
 
     }
     return analysis_results;
