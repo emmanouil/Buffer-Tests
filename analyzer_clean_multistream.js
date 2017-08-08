@@ -201,6 +201,46 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     };
 }
 
+function Metrics(){
+    this.m_r_events = 0;
+    this.m_r_duration = 0;
+    this.m_r_frames = 0;
+    this.m_i_frames = 0;
+    this.m_r_first = 0;
+}
+
+Metrics.prototype = {
+    get m_r_events() {
+        return this.m_r_events;
+    },
+    set m_r_events(num) {
+        this.m_r_events = num;
+    },
+    get m_r_duration() {
+        return this.m_r_duration;
+    },
+    set m_r_duration(num) {
+        this.m_r_duration = num;
+    },
+    get m_r_frames() {
+        return this.m_r_frames;
+    },
+    set m_r_frames(num) {
+        this.m_r_frames = num;
+    },
+    get m_i_frames() {
+        return this.m_i_frames;
+    },
+    set m_i_frames(num) {
+        this.m_i_frames = num;
+    },
+    get m_r_first() {
+        return this.m_r_first;
+    },
+    set m_r_first(num) {
+        this.m_r_first = num;
+    }
+};
 
 
 
