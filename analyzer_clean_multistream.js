@@ -202,11 +202,13 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
 }
 
 function Metrics() {
-    this.m_r_events = 0;
-    this.m_r_duration = 0;
-    this.m_r_frames = 0;
-    this.m_i_frames = 0;
-    this.m_r_first = 0;
+    this.m_r_events = 0;    //rebuffer events (does not include initial buffering)
+    this.m_r_duration = 0;  //rebuffer duration (in ms - does not include initial buffering)
+    this.m_r_frames = 0;    //rebuffer frames (does not include initial buffering)
+    this.m_i_frames = 0;    //initial buffering frames (NOTE: used to calculate initial buffering duration ONLY) - NOT actual frames (TODO: clarify)
+    this.m_r_first = 0;     //time (in ms) of first rebuffering occurance (since playback started)
+    this.m_dropped_frames = 0;  //not used (not implemented get/set)
+    this.m_displayed_frames = 0;
 }
 
 Metrics.prototype = {
@@ -239,10 +241,27 @@ Metrics.prototype = {
     },
     set m_r_first(num) {
         this.m_r_first = num;
+    },
+    get m_dropped_frames() {
+        return this.m_dropped_frames;
+    },
+    set m_dropped_frames(num) {
+        this.m_dropped_frames = num;
+    },
+    get m_displayed_frames() {
+        return this.m_displayed_frames;
+    },
+    set m_displayed_frames(num) {
+        this.m_displayed_frames = num;
     }
 };
 
+/*
+function Simulation() {
 
+    METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+}
+*/
 
 /*
  * STARTOF functions
@@ -310,10 +329,7 @@ function do_analysis(filenames_in, number_of_streams) {
         /**
          * Setup simulation environment for specific sample file
          */
-        //TODO no globals (like METRICS_M)
         var m = new Metrics();
-        //METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
-        var dropped_mframes = 0, displayed_mframes = 0;
         var v_t_play = 0, m_t_play = 0, init_t_diff = 0;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
         //for resetting queues
@@ -455,7 +471,7 @@ function do_analysis(filenames_in, number_of_streams) {
             if (buffers[0].status == 'PLAYING') {
                 for (var i = 0; i < number_of_streams; i += 1) {
                     m_next_FRN = buffers[i].pop().FRN + 1;  //TODO remove m_next_FRN (NOTICE used in function)
-                    displayed_mframes += 1;
+                    m.m_displayed_frames += 1;
                 }
             }
 
@@ -524,7 +540,7 @@ function do_analysis(filenames_in, number_of_streams) {
             per_in_sync = (m.m_r_first - m_t_play) / clean_duration;
         }
 
-        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': m.m_r_events, 'Frames': m.m_r_frames, 'IFrames': m.m_i_frames, 'Duration': m.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': m.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': displayed_mframes, 'Dropped': dropped_mframes });
+        analysis_results.push({ 'Mbuffsize': buffers[0].Binit, 'Events': m.m_r_events, 'Frames': m.m_r_frames, 'IFrames': m.m_i_frames, 'Duration': m.m_r_duration, 'EndSize': buffers[0].size_Continuous, 'StartT': m_t_play, 'FirstRT': m.m_r_first, 'TimeInSync': per_in_sync, 'Displayed': m.m_displayed_frames, 'Dropped': m.m_dropped_frames });
 
     }
     return analysis_results;
