@@ -202,6 +202,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
 }
 
 function Metrics() {
+    //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
     this.m_r_events = 0;    //rebuffer events (does not include initial buffering)
     this.m_r_duration = 0;  //rebuffer duration (in ms - does not include initial buffering)
     this.m_r_frames = 0;    //rebuffer frames (does not include initial buffering)
@@ -256,12 +257,27 @@ Metrics.prototype = {
     }
 };
 
-/*
-function Simulation() {
 
-    METRICS_M = { m_r_events: 0, m_r_duration: 0, m_r_frames: 0, m_i_frames: 0, m_r_first: 0 }; //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+function Simulation() {
+    this.m_next_FRN = 0;    //will have to be adjusted for multiple buffers (or use v_next)FRN instead
+    this.v_next_FRN = 0;    //only used for logging for now
 }
-*/
+
+Simulation.prototype = {
+    get m_next_FRN() {
+        return this.m_next_FRN;
+    },
+    set m_next_FRN(frn) {
+        this.m_next_FRN = frn;
+    },
+    get v_next_FRN() {
+        return this.v_next_FRN;
+    },
+    set v_next_FRN(frn) {
+        this.v_next_FRN = frn;
+    },
+};
+
 
 /*
  * STARTOF functions
