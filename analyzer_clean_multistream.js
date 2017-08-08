@@ -57,7 +57,7 @@ console.log('All test DONE');
 
 
 /*
- * STARTOF objects
+ * STARTOF objects Stream, Buffer, Simulation, Metrics
  */
 function Stream(filename, id) {
     this.filename = filename;
@@ -149,10 +149,10 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             if (this.status == 'NEW') {
                 if (this.Binit <= (this.frames[this.frames.length - 1].T_display - this.frames[0].T_display)) {   //check if we are on playback levels
                     this.status = 'READY';
-                    console.log(this.type + " " + this.ID + " READY @ " + incoming_vframe.T_display);
+                    //console.log(this.type + " " + this.ID + " READY @ " + incoming_vframe.T_display);
                 }
             } else if (this.status == 'PLAYING') {
-                if (this.frames.length == 0) {
+                if (this.frames.length == 0) {  //we assume no out-of-order frames for video
                     this.status = 'BUFFERING';
                     console.log(this.type + " " + this.ID + " BUFFERING @ " + incoming_vframe.T_display);
                 }
@@ -201,7 +201,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
     };
 }
 
-function Metrics(){
+function Metrics() {
     this.m_r_events = 0;
     this.m_r_duration = 0;
     this.m_r_frames = 0;
@@ -348,8 +348,7 @@ function do_analysis(filenames_in, number_of_streams) {
         for (var v_i = 0; v_i < video_stream.frames_Tarr_ordered.length; v_i += 1) {
 
             if (TEST_DURATION < (incoming_vframe.T_display - video_stream.frames_Tarr_ordered[0].T_display)) {     //check if exceeded test duration
-                //we do not calculate it since it is equal to m_r_duration
-                //accumulated_jitter = ((v_curr_Frame.T_display - m_curr_Frame.T_display) -init_t_diff);
+                //we do not calculate accumulated_jitter since it equals to m_r_duration
                 break;
             }
 
