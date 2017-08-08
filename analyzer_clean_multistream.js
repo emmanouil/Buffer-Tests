@@ -363,7 +363,6 @@ function do_analysis(filenames_in, number_of_streams) {
         var s = new Simulation();
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
         //for resetting queues
-        var dela_list = [];
         var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
 
         if (DETAILED_ANALYSIS) {
@@ -374,16 +373,11 @@ function do_analysis(filenames_in, number_of_streams) {
         var T_end = T_zero + TEST_DURATION;
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
         incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
-        var current_vbuff_status = 'NEW';
 
         for (var i = 0; i < number_of_streams; i += 1) {
             buffers.push(new Buffer(i, streams[i], 'META', mbuff_thres));
         }
 
-
-        var m_index = 0;
-        var v_curr_Frame = {};
-        var current_mbuff_status = 'NEW';
 
         /**
          * Actual simulation start - by iterating through vframes
@@ -553,7 +547,7 @@ function do_analysis(filenames_in, number_of_streams) {
 
             if (DETAILED_ANALYSIS) {
                 tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt',
-                    '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (s.m_next_FRN) + '\t' + (s.v_next_FRN) + '\t' + current_mbuff_status);
+                    '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (s.m_next_FRN) + '\t' + (s.v_next_FRN) + '\t' + buffers[0].status);
             }
 
 
