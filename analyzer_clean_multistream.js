@@ -204,6 +204,7 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
 
 function Metrics() {
     //TODOk: check m_r_first (i.e. FirstRT) - possible averaging error AND time not consistent with StartT
+    this.simulation = {};   //reference to the current simulation
     this.m_r_events = 0;    //rebuffer events (does not include initial buffering)
     this.m_r_duration = 0;  //rebuffer duration (in ms - does not include initial buffering)
     this.m_r_frames = 0;    //rebuffer frames (does not include initial buffering)
@@ -366,6 +367,7 @@ function do_analysis(filenames_in, number_of_streams) {
          */
         var m = new Metrics();
         var s = new Simulation();
+        m.simulation = s;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
         //for resetting queues
         var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
