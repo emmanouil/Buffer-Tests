@@ -217,6 +217,12 @@ function Metrics() {
 }
 
 Metrics.prototype = {
+    get simulation() {
+        return this.simulation;
+    },
+    set simulation(simulation) {
+        this.simulation = simulation;
+    },
     get m_r_events() {
         return this.m_r_events;
     },
