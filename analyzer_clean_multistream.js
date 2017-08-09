@@ -369,8 +369,6 @@ function do_analysis(filenames_in, number_of_streams) {
         var s = new Simulation();
         m.simulation = s;
         var per_in_sync = 0;    //TODOk: check this (i.e. TimeInSync) - possibly OK
-        //for resetting queues
-        var D_min_observed = 999999, D_max_observed = 0, D_mean_observed = -1, D_mean_buffer = -1;
 
         if (DETAILED_ANALYSIS) {
             tl.write(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt', 'Time \t vbuffer \t mbuffer (c) \t mbuffer (f) \t mbuffer (c) frames \t mbuffer (f) frames \t MBuff[0]FRN+1 \t VBuff[0]FRN+1 \t MBuff_status');
