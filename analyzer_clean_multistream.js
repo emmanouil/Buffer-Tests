@@ -155,12 +155,12 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
             } else if (this.status == 'PLAYING') {
                 if (this.frames.length == 0) {  //we assume no out-of-order frames for video
                     this.status = 'BUFFERING';
-                    console.log(this.type + " " + this.ID + " BUFFERING @ " + incoming_vframe.T_display);
+                    console.log(this.type + " " + this.ID + " BUFFERING @ " + this.simulation.incoming_vframe.T_display);
                 }
             } else if (this.status == 'BUFFERING') {
                 if (this.frames.length > 0) {
                     this.status = 'READY';
-                    console.log(this.type + " " + this.ID + " READY @ " + incoming_vframe.T_display);
+                    console.log(this.type + " " + this.ID + " READY @ " + this.simulation.incoming_vframe.T_display);
                 }
             }
         }
@@ -172,13 +172,13 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 m.m_i_frames += 1;
                 if (this.Binit <= this.duration_Continuous) {   //check if we are on playback levels
                     cms = 'READY';
-                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
+                    console.log(this.Binit + " META READY @ " + m.simulation.incoming_vframe.T_display);
                 }
             } else if (cms == 'PLAYING') {
                 if (this.frames.length == 0 || this.size_Continuous == 0) {
                     cms = 'BUFFERING';
                     if (m.m_r_first == 0) {
-                        m.m_r_first = incoming_vframe.T_display;
+                        m.m_r_first = m.simulation.incoming_vframe.T_display;
                     }
                     m.m_r_events += 1;
                     m.m_r_frames += 1;
@@ -188,11 +188,11 @@ function Buffer(id, stream, type = 'META', Binit = 0) {
                 m.m_r_frames += 1;
                 if (this.duration_Continuous > this.Bplay && this.frames.length > 0) {
                     cms = 'READY';
-                    console.log(this.Binit + " META READY @ " + incoming_vframe.T_display);
+                    console.log(this.Binit + " META READY @ " + m.simulation.incoming_vframe.T_display);
                 }
             }
             if (cms == 'BUFFERING') {
-                m.m_r_duration += (incoming_vframe.T_display - (incoming_vframe.T_display - this.stream.frame_duration));
+                m.m_r_duration += (m.simulation.incoming_vframe.T_display - (m.simulation.incoming_vframe.T_display - this.stream.frame_duration));
             }
             this.status = cms;
         } else {
@@ -382,8 +382,9 @@ function do_analysis(filenames_in, number_of_streams) {
 
         var T_zero = video_stream.frames_Tarr_ordered[0].T_display;    //first vframe timestamp
         var T_end = T_zero + TEST_DURATION;
+
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
-        incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
+        s.incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
 
         for (var i = 0; i < number_of_streams; i += 1) {
             buffers.push(new Buffer(i, streams[i], 'META', mbuff_thres));
@@ -395,7 +396,7 @@ function do_analysis(filenames_in, number_of_streams) {
          */
         for (var v_i = 0; v_i < video_stream.frames_Tarr_ordered.length; v_i += 1) {
 
-            if (TEST_DURATION < (incoming_vframe.T_display - video_stream.frames_Tarr_ordered[0].T_display)) {     //check if exceeded test duration
+            if (TEST_DURATION < (s.incoming_vframe.T_display - video_stream.frames_Tarr_ordered[0].T_display)) {     //check if exceeded test duration
                 //we do not calculate accumulated_jitter since it equals to m_r_duration
                 break;
             }
@@ -406,7 +407,7 @@ function do_analysis(filenames_in, number_of_streams) {
              * Check arriving vframes and VBuff status
              */
             //select current incoming vframe
-            incoming_vframe = video_stream.frames_Tarr_ordered[v_i];
+            s.incoming_vframe = video_stream.frames_Tarr_ordered[v_i];
             //push current incoming vframe in Vbuffer    
             VBuff.push(video_stream.frames_Tarr_ordered[v_i]);
             //set buffer status ('NEW', 'READY', 'BUFFERING')
@@ -418,7 +419,7 @@ function do_analysis(filenames_in, number_of_streams) {
              */
             //select current incoming mframe
             for (var i = 0; i < number_of_streams; i += 1) {
-                buffers[i].receiveFrames(incoming_vframe.T_display)
+                buffers[i].receiveFrames(s.incoming_vframe.T_display)
                 //TODO check if buffer status and stream next frame is changed on push
             }
 
@@ -486,7 +487,7 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             if (m.m_play_time == 0 && buffers[0].status == 'PLAYING') {
-                m.m_play_time = incoming_vframe.T_display;
+                m.m_play_time = s.incoming_vframe.T_display;
             }
 
             //ENDOF
@@ -558,7 +559,7 @@ function do_analysis(filenames_in, number_of_streams) {
 
             if (DETAILED_ANALYSIS) {
                 tl.append(NODE_OUT_PATH + RESULTS_FILE + '_FIXED_' + DISTRIBUTION + '_Mbuff_' + mbuff_thres + '_Vbuff' + VIDEO_BUFFER_PLAY_THRES + (DEPENDENT ? 'D' : '') + '.txt',
-                    '\n' + (incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (s.m_next_FRN) + '\t' + (s.v_next_FRN) + '\t' + buffers[0].status);
+                    '\n' + (s.incoming_vframe.T_display - T_zero).toFixed(2) + '\t' + (Vbuff[Vbuff.length - 1].T_display - Vbuff[0].T_display).toFixed(2) + '\t' + Mbuff_c_duration.toFixed(2) + '\t' + Mbuff_f_duration.toFixed(2) + '\t' + Mbuff_c_size + '\t' + Mbuff.length + '\t' + (s.m_next_FRN) + '\t' + (s.v_next_FRN) + '\t' + buffers[0].status);
             }
 
 
