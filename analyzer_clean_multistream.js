@@ -278,6 +278,7 @@ Metrics.prototype = {
 
 
 function Simulation() {
+    this.playStatus = 'INITIALIZING'    //'INITIALIZING', 'PLAYING', 'BUFFERING'
     this.incoming_vframe = {};
     this.m_next_FRN = 0;    //will have to be adjusted for multiple buffers (or use v_next)FRN instead
     this.v_next_FRN = 0;    //only used for logging for now
@@ -287,7 +288,7 @@ Simulation.prototype = {
     get incoming_vframe() {
         return this.incoming_vframe;
     },
-    set m_next_FRN(vframe) {
+    set incoming_vframe(vframe) {
         this.incoming_vframe = vframe;
     },
     get m_next_FRN() {
