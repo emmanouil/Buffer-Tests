@@ -12,10 +12,8 @@ const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTIO
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
-const DEPENDENT = false;
-//const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
-const DROP_FRAMES = false;  //TODOk: test this (does not seem to work)
-//const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');   //single file not supported here - parsed from the META_IN_FILE_LIST during analysis
+const DROP_FRAMES = false;  //not used
+//const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
 const META_BUFFER_PLAY_THRESHOLD_STEP = 100; //in ms
@@ -422,22 +420,6 @@ function do_analysis(filenames_in, number_of_streams) {
                 //TODO check if buffer status and stream next frame is changed on push
             }
 
-            //TODO implement this (Drop frames behaviour)
-            /*
-            if (DROP_FRAMES && current_vbuff_status == 'PLAYING') {
-                while (Mbuff.length > 0 && (Mbuff[0].T_display < (v_curr_Frame.T_display + frame_duration))) {
-                    //console.log('Dropped: '+ Mbuff.shift().FRN+'    for'+v_curr_Frame.FRN);
-                    Mbuff.shift();
-                    dropped_mframes+=1;
-                    Mbuff_changed = true;
-                }
-                if (Vbuff[0].FRN != 0) {
-                    m_next_FRN = Vbuff[0].FRN;
-                }
-            }
-            */
-
-
             for (var i = 0; i < number_of_streams; i += 1) {
                 //re-sort frames in buffer and update sizes
                 buffers[i].updateFrames(s);
@@ -486,7 +468,6 @@ function do_analysis(filenames_in, number_of_streams) {
             //STARTOF emptying qeues
 
             if (VBuff.status == 'PLAYING') {
-                //TODO something like     if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
                 s.v_next_FRN = VBuff.pop().FRN + 1;
             }
             if (buffers[0].status == 'PLAYING') {
