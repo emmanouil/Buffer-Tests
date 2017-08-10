@@ -13,7 +13,6 @@ const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum 
 
 //constants
 const DEPENDENT = false;
-const DELAYED_START = true;    //video stream ignores vbuff_thres and waits for meta-stream to initiate playback //TODOk: test if it works as supposed to
 //const META_BEHAVIOUR = 'DROP_FRAMES';   // 'REBUFF'/'DROP_FRAMES': behaviour to follow on meta playback (Video waits, or Meta drops frames)
 const DROP_FRAMES = false;  //TODOk: test this (does not seem to work)
 //const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');   //single file not supported here - parsed from the META_IN_FILE_LIST during analysis
@@ -384,7 +383,7 @@ function do_analysis(filenames_in, number_of_streams) {
         var T_end = T_zero + TEST_DURATION;
 
         var VBuff = new Buffer(-1, video_stream, 'VIDEO', VIDEO_BUFFER_PLAY_THRES);
-        s.incoming_vframe = video_stream.frames_Tarr_ordered[0]; //TODO this is global and old
+        s.incoming_vframe = video_stream.frames_Tarr_ordered[0];
 
         for (var i = 0; i < number_of_streams; i += 1) {
             buffers.push(new Buffer(i, streams[i], 'META', mbuff_thres));
@@ -469,14 +468,6 @@ function do_analysis(filenames_in, number_of_streams) {
             }
             //ENDOF
 
-            //TODO: this
-            /*
-            if (DELAYED_START) {
-                if ((current_vbuff_status == 'READY' || current_vbuff_status == 'PLAYING') && current_mbuff_status != 'PLAYING' && Vbuff[0].FRN == 0) {
-                    current_vbuff_status = 'READY';
-                }
-            }
-            */
 
             //STARTOF logging times
             //TODO bug in VBuff.status == 'PLAYING', when MBuff is re-buffering
@@ -489,12 +480,10 @@ function do_analysis(filenames_in, number_of_streams) {
             if (m.m_play_time == 0 && buffers[0].status == 'PLAYING') {
                 m.m_play_time = s.incoming_vframe.T_display;
             }
-
             //ENDOF
+
+
             //STARTOF emptying qeues
-
-
-
 
             if (VBuff.status == 'PLAYING') {
                 //TODO something like     if (!DEPENDENT || current_mbuff_status == 'PLAYING') {
@@ -508,8 +497,6 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             //ENDOF
-
-            //TODO handle incoming_vframe
 
             /**
              * mean, min, man - delay estimations (from Mbuffer)
