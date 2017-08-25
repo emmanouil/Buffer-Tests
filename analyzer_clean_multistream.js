@@ -443,17 +443,18 @@ function do_analysis(filenames_in, number_of_streams) {
             }
 
             if (metaBuffersReady && ((VBuff.status == 'PLAYING') || (VBuff.status == 'READY'))) {
-                //                console.log('READY TO GO GO @ ' + VBuff.frames[VBuff.frames.length - 1].T_display);
                 VBuff.status = 'PLAYING';
                 for (var i = 0; i < number_of_streams; i += 1) {
                     buffers[i].status = 'PLAYING';
                 }
+            }else{
+                //VBuff is ready/playing but mbuffs are buffering
+                VBuff.status = 'READY';
             }
             //ENDOF
 
 
             //STARTOF logging times
-            //TODO bug in VBuff.status == 'PLAYING', when MBuff is re-buffering
             if (VBuff.status == 'PLAYING') {
                 if (m.v_play_time == 0) {
                     m.v_play_time = VBuff.frames[VBuff.frames.length - 1].T_display;
