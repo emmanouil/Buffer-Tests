@@ -10,8 +10,8 @@ from operator import add
 
 DATA_DIR = "data"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "16191262017_N_analysis_500.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "16191262017_U_analysis_500.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "17132572017_N_analysis_100.txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "17132572017_U_analysis_100.txt"  # Uniform Distribution
 #ANALYSIS_SUM_FILE_U = "14141042017_N_analysis_500_DROP_WAIT_FRN.txt"  # Uniform Distribution w drops
 #ANALYSIS_SUM_FILE_N = "14141042017_U_analysis_500_DROP_WAIT_FRN.txt"  # Normal Distribution w drops
 #ANALYSIS_SUM_FILE_U = "13541042017_U_analysis_500_DROP_FRN.txt"  # Uniform Distribution w drops
@@ -147,7 +147,7 @@ if(plotDrops):
 #Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
 plotTimes(toDrawN[6], 'red', toDrawU[6], 'orange', toDrawN[4], 'b', toDrawU[4], 'c', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Buffering Duration (ms)','Initial Buffering N', 'Rebuffering N', 'Initial Buffering U', 'Rebuffering U')
 #Draw Stack Bar w/ Initial Buffering Time vs Rebuffering Time / Mbuff size
-plotTimes(list(map(add, toDrawN[6], toDrawN[4])), 'orange', list(map(add, toDrawU[6], toDrawU[4])), 'red', toDrawN[6], 'c', toDrawU[6], 'b', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Avg. Total Buffering Duration (ms)','Total Buffering N', 'Initial Buffering N', 'Total Buffering U', 'Initial Buffering U')
+plotTimes(list(map(add, toDrawN[6], toDrawN[4])), 'orange', list(map(add, toDrawU[6], toDrawU[4])), 'red', toDrawN[6], 'c', toDrawU[6], 'b', toDrawN[0], 'Buffer Playback Threshold (ms)', 'Buffering Duration (ms)','Total (Normal Distr.)', 'Initial (Normal Distr.)', 'Total (Uniform Distr.)', 'Initial (Uniform Distr.)')
 #wait = input("PRESS ENTER TO CONTINUE.")
 
 
