@@ -35,8 +35,13 @@ const TWO_PI = 2 * PI;
 
 
 //Entry point
-var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
-tl.writeJSON(DIR_OUT + '/' + V_FILENAME + FILE_EXTENTION, video_out);
+if (tl.exists(DIR_OUT + '/' + V_FILENAME + FILE_EXTENTION)) {
+    console.log('video file ' + (DIR_OUT + '/' + V_FILENAME + FILE_EXTENTION) + ' already exists - skipping generation of video frames');
+} else {
+    console.log('video file ' + (DIR_OUT + '/' + V_FILENAME + FILE_EXTENTION) + ' not found - generating of video frames');
+    var video_out = generate_frames(V_STREAM_ID, V_FRAMERATE, V_DELAY_DISTR);
+    tl.writeJSON(DIR_OUT + '/' + V_FILENAME + FILE_EXTENTION, video_out);
+}
 var datas = [];
 for (var t_n = 0; t_n < M_N_OF_SAMPLES; t_n++) {
     var meta_out = generate_frames(M_STREAM_ID, M_FRAMERATE, M_DELAY_DISTR);
