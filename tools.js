@@ -41,9 +41,15 @@ function findIndexByProperty(array, obj_attr, obj_value) {
     return -1;
 }
 
+function exists(filename) {
 function read(filename) {
     var ex = fs.existsSync(filename);
     if (!ex) {
+        return false;
+    }
+    return true;
+}
+
         console.log('[ERROR] File ' + filename + ' not found');
         return null;
     }
