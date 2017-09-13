@@ -6,6 +6,7 @@ var path = require("path"),
 //file methods
 exports.append = append;
 exports.appendJSON = appendJSON;
+exports.exists = exists;
 exports.read = read;
 exports.readJSON = readJSON;
 exports.write = write;
