@@ -55,7 +55,7 @@ for (var t_n = 0; t_n < M_N_OF_SAMPLES; t_n++) {
     }
     datas.push(data_out);
 }
-tl.writeJSON('testfiles' + M_DELAY_DISTR + '.txt', datas);
+tl.writeJSON('testfiles' + M_DELAY_DISTR + '_' + M_DELAY_MIN + '-' + M_DELAY_MAX + '.txt', datas);
 console.log('done')
 
 /**

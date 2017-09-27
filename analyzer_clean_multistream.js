@@ -8,7 +8,9 @@ var tl = require("./tools.js");
 //file-out setup
 const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'generated/video_out.json';
-const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>.txt
+const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>_<MIN_DELAY>-<MAX_DELAY>.txt (automatically check for NORMAL and UNIFORM)
+const DELAY_MIN = 200;    //(in ms)
+const DELAY_MAX = 3200;    //(in ms)
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
@@ -39,9 +41,9 @@ var normal_res_obj = { results: [] };
 var uniform_files_list = { files: '', fileslength: '' };
 var uniform_res_obj = { results: [] };
 //TODO split file parsing with results
-readStreamFiles(normal_files_list, 'NORMAL');
+readStreamFiles(normal_files_list, 'NORMAL', DELAY_MIN, DELAY_MAX);
 performAnalysis(normal_files_list, normal_res_obj, NUMBER_OF_STREAMS);
-readStreamFiles(uniform_files_list, 'UNIFORM');
+readStreamFiles(uniform_files_list, 'UNIFORM', DELAY_MIN, DELAY_MAX);
 performAnalysis(uniform_files_list, uniform_res_obj, NUMBER_OF_STREAMS);
 
 //var res_to_file_n = [{ 'Mbuffsize': 0, 'Events': 0, 'Frames': 0, 'Duration': 0 }];
@@ -447,7 +449,7 @@ function do_analysis(filenames_in, number_of_streams) {
                 for (var i = 0; i < number_of_streams; i += 1) {
                     buffers[i].status = 'PLAYING';
                 }
-            }else{
+            } else {
                 //VBuff is ready/playing but mbuffs are buffering
                 VBuff.status = 'READY';
             }
@@ -568,12 +570,19 @@ function startPlayback(video_buffer, meta_buffers) {
 
 /**
  * Parses the filenames from the list
+ * (if d_min && d_max not defined or d_min && d_max == 0 -> revert to old file naming)
  * @param {obj} files_obj_in object to store results
  * @param {String} type distribution type ('UNIFORM' or 'NORMAL')
+ * @param {int} d_min minimum delay
+ * @param {int} d_max maximum delay 
  * 
  */
-function readStreamFiles(files_obj_in, type) {
-    files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
+function readStreamFiles(files_obj_in, type, d_min = 0, d_max = 0) {
+    if (d_min == d_max && (d_min == 0)) {
+        files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '.txt'));
+    } else {
+        files_obj_in.files = JSON.parse(tl.read(META_IN_FILE_LIST + type + '_' + d_min + '-' + d_max + '.txt'));
+    }
     files_obj_in.fileslength = files_obj_in.files.length;
 }
 
