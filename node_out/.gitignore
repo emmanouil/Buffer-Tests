@@ -1,0 +1,5 @@
+# Directory containing results of analysis generated from analyzer_clean_multistream
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
