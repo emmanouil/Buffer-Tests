@@ -624,9 +624,9 @@ function resultsToFile(res_obj_in, type) {
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP' : '') + '.txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \t Displayed \t Dropped \n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-'+DELAY_MAX+'].txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \t Displayed \t Dropped \n');
     res_to_file.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP' : '') + '.txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\t' + (elem.Displayed / runs).toFixed(2) + '\t' + (elem.Dropped / runs).toFixed(2) + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-'+DELAY_MAX+'].txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\t' + (elem.Displayed / runs).toFixed(2) + '\t' + (elem.Dropped / runs).toFixed(2) + '\n');
     });
     console.log(' runs ' + runs);
     return res_to_file;
