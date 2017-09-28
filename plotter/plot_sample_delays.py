@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import json
 import math
+import os
 
 DATA_DIR = "data"
 ANALYSIS_SUM_FILE_N = "meta_out_min200_max3200_distrNORMAL_freq30_"  # Normal Distribution
@@ -18,11 +19,12 @@ maxDN = 0
 dX = [] #[Delay]
 dN = [] #[samplesN]
 dU = [] #[samplesU]
+os.chdir("..")
 
 #UNIFORM
 #Parse
 for i in range(200):
-    with open(DATA_DIR+'/runs/'+ANALYSIS_SUM_FILE_U+str(i)+EXTENSION, 'r') as f_in:
+    with open('generated/'+ANALYSIS_SUM_FILE_U+str(i)+EXTENSION, 'r') as f_in:
         samplesU = json.load(f_in)
 
     for sample in samplesU:
@@ -39,7 +41,7 @@ for i in range(200):
 
 #NORMAL
 for i in range(200):
-    with open(DATA_DIR+'/runs/'+ANALYSIS_SUM_FILE_N+str(i)+EXTENSION, 'r') as f_in:
+    with open('generated/'+ANALYSIS_SUM_FILE_N+str(i)+EXTENSION, 'r') as f_in:
         samplesN = json.load(f_in)
 
     for sample in samplesN:
