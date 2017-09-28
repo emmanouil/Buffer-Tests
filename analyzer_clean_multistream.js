@@ -14,7 +14,7 @@ const DELAY_MAX = 3200;    //(in ms)
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants
-const DROP_FRAMES = false;  //not used
+const DROP_FRAMES = true;  //NOTE: measures the frames that would have been dropped if we did not have any rebuffs
 //const DISTRIBUTION = ((META_IN_FILE.search('UNIFORM') > 0) ? 'UNIFORM' : 'NORMAL');
 const META_BUFFER_PLAY_THRESHOLD_MIN = 100; //in ms
 const META_BUFFER_PLAY_THRESHOLD_MAX = 1500; //in ms
@@ -331,6 +331,29 @@ function performAnalysis(files_obj_in, res_obj_out, number_of_streams = 1) {
             files_in.push(files_obj_in.files[i_x].File);
         }
         result = do_analysis(files_in, number_of_streams);
+
+
+        //STARTOF calculate frames dropped (if we wouldn't rebuffer)
+        if (DROP_FRAMES) {
+            var s_tmp = new Stream(files_in[0], 1);
+            result.forEach(function (res, index) {
+                if (res.Dropped != 0) {
+                    tl.logFatalError('We should not have any drops measured from the previous analysis')
+                }
+                var t_start = res.StartT;
+                var dsp_tmp = 0, drp_tmp = 0;
+                for (var j = 0; j < res.Displayed; j++) {
+                    if (s_tmp.frames_FRN_ordered[j].Delay > t_start) {
+                        drp_tmp++;
+                    } else {
+                        dsp_tmp++;
+                    }
+                }
+                result[index].Dropped = drp_tmp;
+            });
+        }
+        //ENDOF
+
         res_obj_out.results.push(result);
     }
 }
@@ -624,9 +647,9 @@ function resultsToFile(res_obj_in, type) {
             }
         }
     });
-    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-'+DELAY_MAX+'].txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \t Displayed \t Dropped \n');
+    tl.write(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-' + DELAY_MAX + '].txt', 'Buffsize \t R.Events \t R.Frames \t IR.Frames \t R.Duration \t EndSize \t StartT \t FirstRT \t TimeInSync \t Displayed \t Dropped \n');
     res_to_file.forEach(function (elem, index, array) {
-        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-'+DELAY_MAX+'].txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\t' + (elem.Displayed / runs).toFixed(2) + '\t' + (elem.Dropped / runs).toFixed(2) + '\n');
+        tl.append(NODE_OUT_PATH + RESULTS_FILE + '_' + t + '_analysis_' + runs + (DROP_FRAMES ? '_DROP_[' : '_[') + DELAY_MIN + '-' + DELAY_MAX + '].txt', elem.Mbuffsize + '\t' + (elem.Events / runs).toFixed(2) + '\t' + (elem.Frames / runs).toFixed(2) + '\t' + (elem.IFrames / runs).toFixed(2) + '\t' + (elem.Duration / runs).toFixed(2) + '\t' + (elem.EndSize / runs).toFixed(2) + '\t' + (elem.StartT / runs).toFixed(2) + '\t' + (elem.FirstRT / runs).toFixed(2) + '\t' + (elem.TimeInSync / runs).toFixed(2) + '\t' + (elem.Displayed / runs).toFixed(2) + '\t' + (elem.Dropped / runs).toFixed(2) + '\n');
     });
     console.log(' runs ' + runs);
     return res_to_file;
