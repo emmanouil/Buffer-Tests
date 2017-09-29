@@ -3,12 +3,13 @@ import numpy as np
 import csv
 import sys
 from operator import add
+import os
 
 
 
 #PARAMETERS
-
-DATA_DIR = "data"
+os.chdir("..")
+DATA_DIR = "node_out"
 OUT_DIR = "plots"
 ANALYSIS_SUM_FILE_N = "17132572017_N_analysis_100.txt"  # Normal Distribution
 ANALYSIS_SUM_FILE_U = "17132572017_U_analysis_100.txt"  # Uniform Distribution
