@@ -1,6 +1,5 @@
 node_modules/
-plotter/data/
-plotter/plots/
+plots/
 meta_out*
 video_out*
 testfiles*
