@@ -102,12 +102,13 @@ def plotTriDataPoints(Xnorm, Ynorm, Xuni, Yuni, Znorm, Zuni, Xlabel, Ylabel, Ext
     ax1.grid(which='major', alpha=0.7, linestyle='--')
     ax1.set_ylabel(Ylabel)
     ax1.set_xlabel(Xlabel)
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('Duration (ms)')
-    ymin, ymax = ax1.get_ylim()
-    print(ymin)
-    print(ymax)
-    ax2.set_ylim([ymin, (ymax * 33.3)])
+
+    #unkcomment following 4 lines for duration of drops
+#    ax2 = ax1.twinx()
+#    ax2.set_ylabel('Duration (ms)')
+#    ymin, ymax = ax1.get_ylim()
+#    ax2.set_ylim([ymin, (ymax * 33.3)])
+
     legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
     legend.get_frame().set_facecolor('#F2F4F7')
     if SAVE_TO_FILE:
