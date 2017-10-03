@@ -16,12 +16,9 @@ FILES = ["16173082017_N_analysis_400_DROP_[100-500].txt", "16173082017_U_analysi
          "16203082017_N_analysis_400_DROP_[300-1000].txt", "16203082017_U_analysis_400_DROP_[300-1000].txt",
          "16213082017_N_analysis_400_DROP_[400-1200].txt", "16213082017_U_analysis_400_DROP_[400-1200].txt"]
          
-ANALYSIS_SUM_FILE_N = "18372882017_N_analysis_400_DROP_[200-3200].txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "18372882017_U_analysis_400_DROP_[200-3200].txt"  # Uniform Distribution
-#ANALYSIS_SUM_FILE_U = "14141042017_N_analysis_500_DROP_WAIT_FRN.txt"  # Uniform Distribution w drops
-#ANALYSIS_SUM_FILE_N = "14141042017_U_analysis_500_DROP_WAIT_FRN.txt"  # Normal Distribution w drops
-#ANALYSIS_SUM_FILE_U = "13541042017_U_analysis_500_DROP_FRN.txt"  # Uniform Distribution w drops
-#ANALYSIS_SUM_FILE_N = "13541042017_N_analysis_500_DROP_FRN.txt"  # Normal Distribution w drops
+#ANALYSIS_SUM_FILE_N = "18372882017_N_analysis_400_DROP_[200-3200].txt"  # Normal Distribution
+#ANALYSIS_SUM_FILE_U = "18372882017_U_analysis_400_DROP_[200-3200].txt"  # Uniform Distribution
+
 
 #OUTPUT
 SAVE_TO_FILE = False
@@ -106,14 +103,6 @@ def plotPercentage(Xnorm, Ynorm, Xuni, Yuni, Znorm, Zuni, Xlabel, Ylabel, ttl, S
     plt.title(ttl)
     plt.grid(which='minor', alpha=0.3, linestyle=':')
     plt.grid(which='major', alpha=0.7, linestyle='--')
-    #ax1.set_ylim(0)
-    #ax1.set_xticks(ticksXmajor, minor=False)
-    #ax1.set_xticks(ticksXminor, minor=True)
-    #ax1.grid(which='both')
-    #ax1.grid(which='minor', alpha=0.3, linestyle=':')
-    #ax1.grid(which='major', alpha=0.7, linestyle='--')
-    #ax1.set_ylabel(Ylabel)
-    #ax1.set_xlabel(Xlabel)
     #legend = ax1.legend(loc='upper center', shadow=False, fontsize='large')
     #legend.get_frame().set_facecolor('#F2F4F7')
 
@@ -130,16 +119,15 @@ def safeDiv(a, b):
 #ENTRY POINT
 
 #Get data from files
-if(ANALYSIS_SUM_FILE_N.find('DROP')<0):
-    plotDrops = True
-    wait = input("NO DROPS FOUND IN THE FILENAME - press key to continue.")
+
     
 plt.figure(1)
 sbp = 220
 print(len(FILES))
 TITLES = ["Delay Range [100, 500]ms", "Delay Range [200, 800]ms", "Delay Range [300, 1000]ms", "Delay Range [400, 1200]ms"]
 for i in range(0, len(FILES), 2):
-    print(i)
+    if(FILES[i].find('DROP')<0):
+        wait = input("NO DROPS FOUND IN THE FILENAME - press key to continue.")
     sbp+=1
     analysis_file_in_n = "%s/%s" % (DATA_DIR, FILES[i])
     analysis_file_in_u = "%s/%s" % (DATA_DIR, FILES[i+1])
@@ -154,19 +142,4 @@ if SAVE_TO_FILE:
 plt.subplots_adjust(top=0.92, bottom=0.1, left=0.10, right=0.95, hspace=0.5,
                     wspace=0.35)
 plt.show()
-    
-#analysis_file_in_n = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_N)
-#analysis_file_in_u = "%s/%s" % (DATA_DIR, ANALYSIS_SUM_FILE_U)
-#toDrawN = readAnalysisFile(analysis_file_in_n)
-#toDrawU = readAnalysisFile(analysis_file_in_u)
-
-
-
-#Draw Dropped Frames / Buffered Frames / Displayed Frames / Mbuff size
-plotPercentage(toDrawN[0], toDrawN[10], toDrawU[0], toDrawU[10], toDrawN[9], toDrawU[9], 'Buffer Playback Threshold (ms)', '% of Frames Dropped')
-
-
-
-
-
 
