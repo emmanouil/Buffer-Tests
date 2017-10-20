@@ -5,11 +5,9 @@
 
 ### Technical
 
- * Log Initial vs. Total rebuff
- * Results __both__ in csv (for human read) and JSON for ease of parsing
- * Fix continuous buffer size issue (testfile: `912732017_FIXED_UNIFORM_Mbuff_100_Vbuff1000` )
-   * Initial should work -> when [0].FRN = 0  &&  next.FRN = 0
-   * Check case -> when [i].FRN = _p_ + 3  &&  next.FRN = _p_
+ * Split plotter in multiple files - per function
+   * multigraph and single-graph
+   * drops and rebuffs
 
 ### Analysis
 
@@ -20,7 +18,7 @@
 
 
 ### data_generator
-Created files containing sample Video and Meta frames. (####OPTIONS:)
+Create files containing sample Video and Meta frames.
 
 #### OPTIONS:
 ##### GENERAL 
@@ -50,7 +48,7 @@ Files containing json objects for each frame as the following example:
 ```
 
 
-### analyzer_clean
+### analyzer_clean / analyzer_clean_multistream
 Performs the actual simulation - analyzes file(s) containing frames
 
 #### OPTIONS:
@@ -89,10 +87,9 @@ Time 	 vbuffer 	 mbuffer (c) 	 mbuffer (f) 	 mbuffer_frames 	 MBuff_status
 3900.00	2666.67	0.00	1533.33	30	BUFFERING
 ```
 ##### Non-Detailed Analysis (Multiple Files)
-File (e.g. 16571232017_N_analysis_200.txt) with fields containing averages for simulations ran, as follows:
+File (e.g. 16571232017_N_analysis_400.txt) with fields containing averages for simulations ran, as follows:
 ```
-Buffsize 	 R.Events 	 R.Frames 	 R.Duration 
-0	0.00	0.00	0.00
-100	4.39	243.01	7960.50
-200	4.04	107.97	3466.67
+Buffsize 	 R.Events 	 R.Frames 	 IR.Frames 	 R.Duration 	 EndSize 	 StartT 	 FirstRT 	 TimeInSync 	 Displayed 	 Dropped 
+100	2.39	8.02	31.43	187.58	7.37	1014.42	1355.17	0.12	1164.94	215.69
+200	1.19	3.20	35.71	67.00	8.03	1156.92	1262.08	0.44	1164.28	57.48
 ```
