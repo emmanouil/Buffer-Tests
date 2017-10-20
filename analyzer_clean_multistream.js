@@ -9,8 +9,8 @@ var tl = require("./tools.js");
 const NODE_OUT_PATH = 'node_out/';
 const VIDEO_IN_FILE = 'generated/video_out.json';
 const META_IN_FILE_LIST = 'testfiles';  //format <META_IN_FILE_LIST><DISTRIBUTION>_<MIN_DELAY>-<MAX_DELAY>.txt (automatically check for NORMAL and UNIFORM)
-const DELAY_MIN = 200;    //(in ms)
-const DELAY_MAX = 3200;    //(in ms)
+const DELAY_MIN = 400;    //(in ms)
+const DELAY_MAX = 1200;    //(in ms)
 const DETAILED_ANALYSIS = false; //generate buffer status files (instead of sum of rebuff events) - NOTE: To be used with single files (otherwise results will be overwritten)
 
 //constants

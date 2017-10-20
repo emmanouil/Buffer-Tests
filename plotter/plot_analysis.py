@@ -11,8 +11,8 @@ import os
 os.chdir("..")
 DATA_DIR = "node_out"
 OUT_DIR = "plots"
-ANALYSIS_SUM_FILE_N = "17132572017_N_analysis_100.txt"  # Normal Distribution
-ANALYSIS_SUM_FILE_U = "17132572017_U_analysis_100.txt"  # Uniform Distribution
+ANALYSIS_SUM_FILE_N = "18372882017_N_analysis_400_DROP_[200-3200].txt"  # Normal Distribution
+ANALYSIS_SUM_FILE_U = "18372882017_U_analysis_400_DROP_[200-3200].txt"  # Uniform Distribution
 #ANALYSIS_SUM_FILE_U = "14141042017_N_analysis_500_DROP_WAIT_FRN.txt"  # Uniform Distribution w drops
 #ANALYSIS_SUM_FILE_N = "14141042017_U_analysis_500_DROP_WAIT_FRN.txt"  # Normal Distribution w drops
 #ANALYSIS_SUM_FILE_U = "13541042017_U_analysis_500_DROP_FRN.txt"  # Uniform Distribution w drops
@@ -168,6 +168,8 @@ plotData(toDrawN[0], toDrawN[6], toDrawU[0], toDrawU[6], 'Buffer Playback Thresh
 #plotData(toDrawN[0], toDrawN[7], toDrawU[0], toDrawU[7], 'Buffer Playback Threshold (ms)', 'Avg. First Rebuff Time (ms)')
 #Draw Initial Playback Time / Mbuff size
 plotData(toDrawN[0], toDrawN[8], toDrawU[0], toDrawU[8], 'Buffer Playback Threshold (ms)', 'Avg. Time in Sync Ratio')
+#Draw Dropped Frames / Mbuff size
+plotData(toDrawN[0], toDrawN[10], toDrawU[0], toDrawU[10], 'Buffer Playback Threshold (ms)', 'Dropped Frames')
 
 
 #EXIT POINT
