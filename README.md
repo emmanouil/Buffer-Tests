@@ -1,5 +1,20 @@
 # Buffer-Tests
 
+## File descriptions
+### data set
+`data_generator.js` nodejs script for generating data set (js)
+### simulations
+`analyzer_clean_multistream.js` nodejs script for running simulations (js)
+`analyzer_clean.js` nodejs script for running simulations (js) [old version]
+### graphs
+`plot_analysis.py` python script plots analysis data w/ rebuffering events
+`plot_analysis_drops.py` python script plots analysis data w/ drop frames
+`plot_analysis_drops_multistream.py` python script plots analysis data w/ drop frames [frou graphs per plot]
+`plot_detailed_analysis.py` python script plots single-run results (a.k.a. detailed analysis)
+`plot_sample_delays.py` python script plots distribution of data set
+### other
+`tools.js` function used in nodejs scripts
+
 
 ## TODO
 
